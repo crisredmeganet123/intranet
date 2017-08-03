@@ -1,0 +1,136 @@
+﻿function openLoadAjax(objDivLoad, urlPopPup, param) {
+
+    $.ajax({
+        url:urlPopPup,
+        type: "POST",
+        dataType:"text",
+        data: param,
+        beforeSend:function(){
+            //console.log("Cargando...");
+        },
+        success:function(data){
+            $(objDivLoad).html(data);
+            //$(objDivLoad).show();
+        },
+        errors:function(data){
+            $(objDivLoad).text("Ocurrio un error al cargar, consulte al administrador.");
+        }
+    });
+    //$(objDivLoad).load(urlPopPup, param,
+    //    function (response, status, xhr) {
+    //        $(objDivLoad).show();
+    //    }).beforeSend(function () {
+    //        console.log("Cargando...");
+    //    })
+    //    .ajaxError(function () {
+    //        $(objDivLoad).text("Ocurrio un error al cargar, consulte al administrador.");
+    //    });
+}
+
+
+function alertModal(objDiv, altura, ancho, titulo, msj) {
+    $(objDiv).html(msj);
+    $(objDiv).dialog({
+        height: altura,
+        width: ancho,
+        title: titulo,
+        modal: true,
+        autoOpen: true
+    });
+}
+function openAjaxJson(pURL, fnSuccesFull, param) {
+    try {
+        $.ajax({
+            url: pURL,
+            type: "POST",
+            dataType: "json",
+            data: param,
+            async: true,
+            success: fnSuccesFull,
+            error: function (error) {
+                alert("Ha ocurrido un error..");
+            }
+        });
+    } catch (exception) {
+        exception.toString();
+        alert(exception.toString());
+    }
+}
+
+function loadAjaxJson(objDivLoad, pUrl, param, objTable) {
+    $.ajax({
+        url: pUrl,
+        dataType: 'html',
+        type: 'POST',
+        contentType: "application/json; charset=UTF-8",
+        data: JSON.stringify(param),
+        success: function (response) {
+            $(objDivLoad).html(response);
+            $(objTable).show();
+        }, error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+            alert(request.responseText);
+
+            var r = jQuery.parseJSON(response.responseText);
+            alert("Message: " + r.Message);
+            alert("StackTrace: " + r.StackTrace);
+            alert("ExceptionType: " + r.ExceptionType);
+        }
+
+    });
+}
+
+
+function loadAjaxJson(objDivLoad, pUrl, param) {
+    $.ajax({
+        url: pUrl,
+        dataType: 'html',
+        type: 'POST',
+        contentType: "application/json; charset=UTF-8",
+        data: JSON.stringify(param),
+        success: function (response) {
+            $(objDivLoad).html(response);
+            // $(objTable).show();
+        }, error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+            alert(request.responseText);
+
+            var r = jQuery.parseJSON(response.responseText);
+            alert("Message: " + r.Message);
+            alert("StackTrace: " + r.StackTrace);
+            alert("ExceptionType: " + r.ExceptionType);
+        }
+
+    });
+}
+
+function inicioPopPupModal(objDiv, altura, ancho, titulo) {
+    $(objDiv).dialog({
+        height: altura,
+        width: ancho,
+        title: titulo,
+        modal: true,
+        autoOpen: false
+
+    });
+}
+function openDialogoGen(objDivDialogo, urlPopPup, param) {
+    //alert('llegaaaa' + objDivDialogo);
+    $(objDivDialogo).dialog("open");
+    $.ajax({
+        global: false,
+        url: urlPopPup,
+        data: param,
+        beforeSend: function () {
+            $(objDivDialogo).html("<div align='center'>Buscando...</div>");
+        },
+        complete: function () {
+        },
+        error: function () {
+        }
+    }).done(function (data) {
+        $(objDivDialogo).html(data);
+    });
+}

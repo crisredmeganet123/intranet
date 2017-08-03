@@ -1,0 +1,183 @@
+(function () {
+    var app = angular.module('sice');
+    app.factory('commonFactory', ['$rootScope', '$timeout', 'constants', 'utilService', 'utilFactory', function ($rootScope, $timeout, constants, utilService, utilFactory) {
+        var factory = {};
+        /*Grid*/
+        //Templates
+        factory.editableCellTemplateDigit = function () {
+            return "<div><form name=\"inputForm\"><input type=\"INPUT_TYPE\" class=\"digit\" ng-class=\"'colt' + col.uid\" ui-grid-editor ng-model=\"MODEL_COL_FIELD\"></form></div>";
+        }
+
+        factory.editableCellTemplateNumber = function (options) {
+            if (options) {
+                if (options.cellMaxlength) {
+                    return "<div><form name=\"inputForm\"><input type=\"INPUT_TYPE\" maxlength='" + options.cellMaxlength + "' class=\"number\" ng-class=\"'colt' + col.uid\" ui-grid-editor ng-model=\"MODEL_COL_FIELD\"></form></div>";
+                }
+            }
+            return "<div><form name=\"inputForm\"><input type=\"INPUT_TYPE\" class=\"number\" ng-class=\"'colt' + col.uid\" ui-grid-editor ng-model=\"MODEL_COL_FIELD\"></form></div>";
+        }
+
+        // factory.editableCellTemplateNumber = function () {
+        //     console.log("editableCellTemplateNumber ... sin params")
+        //     return "<div><form name=\"inputForm\"><input type=\"INPUT_TYPE\" class=\"number\" ng-class=\"'colt' + col.uid\" ui-grid-editor ng-model=\"MODEL_COL_FIELD\"></form></div>";
+        // }
+
+        factory.editableCellTemplateText = function () {
+            return "<div><form name=\"inputForm\"><input type=\"INPUT_TYPE\" class=\"uppercase\" ng-class=\"'colt' + col.uid\" ui-grid-editor ng-model=\"MODEL_COL_FIELD\"></form></div>";
+        }
+
+        factory.editableHeaderTemplate = function (displayName) {
+            return '<div class="ui-grid-cell-contents editable-field">' + displayName + ' <span class="editable-field-icon">(<img src="/e/images/vendor/edit.png" width="12">)</span></div>';
+        }
+
+        factory.numerationCellTemplate = function () {
+            return '<div class="ui-grid-cell-contents">{{grid.renderContainers.body.visibleRowCache.indexOf(row) + 1}}</div>';
+        }
+
+        factory.numerationPaginatedCellTemplate = function () {
+            return '<div class="ui-grid-cell-contents">{{((grid.options.paginationCurrentPage-1)*grid.options.paginationPageSize)+grid.renderContainers.body.visibleRowCache.indexOf(row) + 1}}</div>';
+        }
+
+        factory.linkNumerationCellTemplate = function (actionName, tooltip) {
+            actionName = typeof actionName !== 'undefined' ? actionName : 'verDetalle';
+            tooltip = typeof tooltip !== 'undefined' ? tooltip : 'Ver Detalle';
+            return '<div class="ui-grid-cell-contents"><a href="#"  tooltip-append-to-body="true" tooltip="' + tooltip + '" tooltip-placement="bottom" ng-click="grid.appScope.' + actionName + '($event, row.entity)">{{grid.renderContainers.body.visibleRowCache.indexOf(row) + 1}}</a></div>';
+        }
+
+        factory.actionDefaultTemplate = function () {
+            return '<div><span class="glyphicon glyphicon-edit" title="Editar" ng-click="grid.appScope.editar($event, row.entity)"></span><span class="glyphicon glyphicon-trash" title="Quitar" ng-click="grid.appScope.eliminar($event, row.entity)"></span><span class="glyphicon glyphicon-list-alt" title="Detalle" ng-click="grid.appScope.verDetalle($event, row.entity)"></span></div>';
+        }
+        factory.actionDeleteTemplate = function (actionName, tooltip) {
+            actionName = typeof actionName !== 'undefined' ? actionName : 'eliminar';
+            tooltip = typeof tooltip !== 'undefined' ? tooltip : 'Eliminar';
+
+            return '<div><button class="btn btn-default" ng-click="grid.appScope.' + actionName + '($event, row.entity)" tooltip-append-to-body="true" tooltip="' + tooltip + '" tooltip-placement="bottom"><span class="glyphicon glyphicon-trash"></span></button></div>';
+        }
+
+        factory.actionDetailLinkTemplate = function (fieldName, actionName, tooltip) {
+            actionName = typeof actionName !== 'undefined' ? actionName : 'verDetalle';
+            tooltip = typeof tooltip !== 'undefined' ? tooltip : 'Ver Detalle';
+            return '<div class="ui-grid-cell-contents"><a href="#" ng-click="grid.appScope.' + actionName + '($event, row.entity)" title="' + tooltip + '">{{row.entity.' + fieldName + '}}</a></div>';
+        }
+
+        factory.actionDetailTemplate = function (actionName, tooltip) {
+            actionName = typeof actionName !== 'undefined' ? actionName : 'verDetalle';
+            tooltip = typeof tooltip !== 'undefined' ? tooltip : 'Ver Detalle';
+
+            return '<div class="ui-grid-cell-contents"><span class="glyphicon glyphicon-list-alt" tooltip-append-to-body="true" tooltip="' + tooltip + '" tooltip-placement="bottom" ng-click="grid.appScope.' + actionName + '($event, row.entity)"></span></div>';
+        }
+
+        factory.actionDeleteDetailTemplate = function (deleteActionName, detailActionName, deleteTitle, detailTitle) {
+            deleteActionName = typeof deleteActionName !== 'undefined' ? deleteActionName : 'eliminar';
+            detailActionName = typeof detailActionName !== 'undefined' ? detailActionName : 'verDetalle';
+            deleteTitle = typeof deleteTitle !== 'undefined' ? deleteTitle : 'Eliminar';
+            detailTitle = typeof detailTitle !== 'undefined' ? detailTitle : 'Ver Detalle';
+            return '<div>\
+                <span class="glyphicon glyphicon-trash"  tooltip-append-to-body="true" tooltip="' + deleteTitle + '" tooltip-placement="bottom" ng-click="grid.appScope.' + deleteActionName + '($event, row.entity)"></span>\
+                <span class="glyphicon glyphicon-list-alt" tooltip-append-to-body="true"  tooltip="' + detailTitle + '" tooltip-placement="bottom" ng-click="grid.appScope.' + detailActionName + '($event, row.entity)"></span>\
+                </div>';
+        }
+
+        factory.actionDeleteViewTemplate = function (deleteActionName, viewActionName, deleteTitle, viewTitle) {
+            deleteActionName = typeof deleteActionName !== 'undefined' ? deleteActionName : 'eliminar';
+            viewActionName = typeof viewActionName !== 'undefined' ? viewActionName : 'fileViewer';
+            deleteTitle = typeof deleteTitle !== 'undefined' ? deleteTitle : 'Eliminar';
+            viewTitle = typeof viewTitle !== 'undefined' ? viewTitle : 'Vizualizar';
+            return '<div>\
+                <span class="glyphicon glyphicon-trash"  tooltip-append-to-body="true" tooltip="' + deleteTitle + '" tooltip-placement="bottom" ng-click="grid.appScope.' + deleteActionName + '($event, row.entity)"></span>\
+                <span tooltip-append-to-body="true"  tooltip="' + viewTitle + '" tooltip-placement="bottom" ng-click="grid.appScope.' + viewActionName + '($event, row.entity)"><img ng-src="/e/images/fileicons/{{row.entity.vExtension}}.png"/></a></span>\
+                </div>';
+        }
+
+        factory.toggleCheckerAllTemplate = function (toggleCheckerAllName, modelName) {
+            toggleCheckerAllName = typeof toggleCheckerAllName !== 'undefined' ? toggleCheckerAllName : 'toggleCheckerAll';
+            modelName = typeof modelName !== 'undefined' ? modelName : 'checkerAll';
+            return '<div class="ui-grid-cell-contents"><input type="checkbox" ng-model="grid.appScope.' + modelName + '" ng-init="grid.appScope.checkerAll = false" ng-click="grid.appScope.' + toggleCheckerAllName + '(grid.appScope.checkerAll)"/></div>';
+        }
+        factory.toggleCheckerTemplate = function (toggleCheckerName) {
+            toggleCheckerName = typeof toggleCheckerName !== 'undefined' ? toggleCheckerName : 'toggleChecker';
+            return "<div class=\"ui-grid-cell-contents\"><input type=\"checkbox\" ng-class=\"'colt' + col.uid\" ui-grid-editor ng-model=\"row.entity.checker\" ng-click=\"grid.appScope." + toggleCheckerName + "(row.entity)\"></div>";
+        }
+
+        factory.gridRowTemplate = function () {
+            return '<div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader, \'active-row\': row.entity.checker == true, \'success-row\': row.entity.nObliga == 0}"  ui-grid-cell></div>';
+        }
+
+        factory.actionFileViewerTemplate = function (actionName) {
+            actionName = typeof actionName !== 'undefined' ? actionName : 'fileViewer';
+            return '<div class="ui-grid-cell-contents"><a ng-click="grid.appScope.' + actionName + '(row.entity)"  tooltip-append-to-body="true" tooltip="Vizualizar" tooltip-placement="bottom"><img ng-src="/e/images/fileicons/{{row.entity.vExtension}}.png"/></a></div>';
+        }
+        factory.gridFooterTemplate = function () {
+            return [
+                '<div class="ui-grid-footer-info ui-grid-footer">',
+                '<div class="ta-center" style="line-height: 30px;">La consulta se ejecut&oacute; en <strong>{{grid.appScope.executionTime}}</strong> Segundos</div>',
+                '</div>'
+            ].join('');
+        }
+
+        factory.paginationTemplate = function () {
+            var repeat = new Array(20).join('&nbsp');
+            return "<div class=\"ui-grid-pager-panel\" ui-grid-pager ng-show=\"grid.options.enablePaginationControls\"><div class=\"ui-grid-pager-container\"><div class=\"ui-grid-pager-control\"><button type=\"button\" ng-click=\"paginationApi.seek(1)\" ng-disabled=\"cantPageBackward()\"><div class=\"first-triangle\"><div class=\"first-bar\"></div></div></button> <button type=\"button\" ng-click=\"paginationApi.previousPage()\" ng-disabled=\"cantPageBackward()\"><div class=\"first-triangle prev-triangle\"></div></button> <input type=\"number\" ng-model=\"grid.options.paginationCurrentPage\" min=\"1\" max=\"{{ paginationApi.getTotalPages() }}\" required> <span class=\"ui-grid-pager-max-pages-number\" ng-show=\"paginationApi.getTotalPages() > 0\">/ {{ paginationApi.getTotalPages() }}</span> <button type=\"button\" ng-click=\"paginationApi.nextPage()\" ng-disabled=\"cantPageForward()\"><div class=\"last-triangle next-triangle\"></div></button> <button type=\"button\" ng-click=\"paginationApi.seek(paginationApi.getTotalPages())\" ng-disabled=\"cantPageToLast()\"><div class=\"last-triangle\"><div class=\"last-bar\"></div></div></button></div><div class=\"ui-grid-pager-row-count-picker\"><select ng-model=\"grid.options.paginationPageSize\" ng-options=\"o as o for o in grid.options.paginationPageSizes\"></select><span class=\"ui-grid-pager-row-count-label\">&nbsp;{{sizesLabel}}</span><span>" + repeat + "Tiempo de Ejecuci&oacute;n <strong>{{grid.appScope.executionTime}}</strong> Segundos</span></div></div><div class=\"ui-grid-pager-count-container\"><div class=\"ui-grid-pager-count\"><span ng-show=\"grid.options.totalItems > 0\">{{showingLow}} - {{showingHigh}} de {{grid.options.totalItems}} {{totalItemsLabel}}</span></div></div></div>";
+        }
+
+
+        factory.getColColegiado = function () {
+            var column = [
+                {name: 'checker', displayName: '', width: 30, pinnedLeft: true, enableSorting: false, enableColumnMenu:false, cellClass: 'ta-center', headerCellClass: 'ta-center', cellTemplate: this.toggleCheckerTemplate()},
+                {name: 'numeration', displayName: '#', width: 50, cellClass: 'ta-center', headerCellClass: 'ta-right', enableSorting: false, enableColumnMenu:false, cellTemplate: this.numerationCellTemplate()},
+                {name: 'nRegCip', displayName: '\u2116 Reg. CIP', width: 100},
+                {name: 'dFecIncorpora', displayName: 'Fecha Incorporación', width: 140},
+                {name: 'vApeNombres', displayName: 'Apellidos y Nombres', minWidth: 250},
+                {name: 'vSede', displayName: 'Sede Actual', minWidth: 250},
+                {name: 'vTipoCol', displayName: 'Tipo Colegiado', width: 110, enableSorting: false, enableColumnMenu:false},
+                {name: 'vEstadoCol', displayName: 'Estado Colegiado', width: 120, enableSorting: false, enableColumnMenu:false}
+            ];
+            return column;
+        }
+
+        factory.listadoTipoBusquedaPersona = function () {
+            var data = [
+                {id: 1, nombre: 'POR TIPO DOCUMENTO'},
+                {id: 2, nombre: 'POR NÚMERO CIP'},
+                {id: 3, nombre: 'POR NOMBRES'}
+            ]
+            return data;
+        }
+
+        factory.listYearMonth = function () {
+            var data = [
+                {id: '01', nombre: 'Enero'},
+                {id: '02', nombre: 'Febrero'},
+                {id: '03', nombre: 'Marzo'},
+                {id: '04', nombre: 'Abril'},
+                {id: '05', nombre: 'Mayo'},
+                {id: '06', nombre: 'Junio'},
+                {id: '07', nombre: 'Julio'},
+                {id: '08', nombre: 'Agosto'},
+                {id: '09', nombre: 'Setiembre'},
+                {id: '10', nombre: 'Octubre'},
+                {id: '11', nombre: 'Noviembre'},
+                {id: '12', nombre: 'Diciembre'}
+            ]
+            return data;
+        }
+
+        factory.listYesNo = function () {
+            var data = [
+                {id: 1, nombre: 'SI'},
+                {id: 0, nombre: 'NO'}
+            ];
+            return data;
+        }
+
+        factory.tipoMoneda = function () {
+            var data = [
+                {id: constants.TIPO_MONEDA.SOLES, nombre: 'Soles'},
+                {id: constants.TIPO_MONEDA.DOLARES, nombre: 'Dólares'},
+            ];
+            return data;
+        }
+
+        return factory;
+    }]);
+}());

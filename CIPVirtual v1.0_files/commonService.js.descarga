@@ -1,0 +1,267 @@
+(function () {
+    var app = angular.module('sice');
+    app.factory('commonService', ['$http', 'constants', 'utilFactory', function ($http, constants, utilFactory) {
+        var service = {};
+        service.getCompendio = function (idCompendio, tipo, menssage) {
+            var data = {id: idCompendio, tipo: tipo, mensaje: menssage};
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO, data);
+        };
+
+        service.getCompendioOrdenado = function (idCompendio, tipo, menssage) {
+            var data = {id: idCompendio, tipo: tipo, mensaje: menssage};
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO_ORDENADO, data);
+        };
+
+        service.getCompendio = function (idCompendio, tipo, menssage, isOrder) {
+            var data = {id: idCompendio, tipo: tipo, mensaje: menssage, orderById: isOrder};
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO, data);
+        };
+
+        service.getCompendioPorId = function (idCompendio, tipo, menssage) {
+            var data = {id: idCompendio, tipo: tipo, mensaje: menssage};
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO_POR_ID, data);
+        };
+
+        service.getCompendioPorIds = function (idCompendios) {
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO_POR_IDS, idCompendios);
+        };
+
+        service.getCompendioGrupo = function (idCompendio, tipo, menssage) {
+            var data = {id: idCompendio, tipo: tipo, mensaje: menssage};
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO_GRUPO, data);
+        };
+
+        service.listarCompendioGrupoAvanzado = function (data) {
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO_GRUPO_AVANZADO, data);
+        };
+
+        service.getSedes = function () {
+            var data = {};
+            return $http.post(constants.SERVICIOS_REST.SEDE, data);
+        };
+
+        service.getRegiones = function () {
+            var data = {};
+            return $http.post(constants.SERVICIOS_REST.REGIONES, data);
+        };
+
+        service.listarAreaPorSede = function (nIdeSede) {
+            return $http.get(constants.SERVICIOS_REST.AREA_POR_SEDE + nIdeSede);
+        };
+
+        service.listArea = function (sendData) {
+            return $http.post(constants.SERVICIOS_REST.LIST_AREA, sendData);
+        };
+
+        service.getCompendioGrupoRol = function (idCompendio, tipo, rol) {
+            var data = {id: idCompendio, tipo: tipo, rol: rol};
+            return $http.post(constants.SERVICIOS_REST.COMPENDIO_GRUPO_ROL, data);
+        };
+
+        service.getTipoArchivo = function () {
+            //return $http.get('/general/getviewfileattach');
+            var tipoArchivos = [
+                {nIdeTipoArchivo: 1, nombre: 'Solicitud'},
+                {nIdeTipoArchivo: 1, nombre: 'Oficio'}
+            ];
+            return tipoArchivos;
+        };
+
+        service.eliminarAdjuntoPaso = function (nIdeAdjunto) {
+            return $http.get(constants.BASE_PATH.COLEGIACION + '/common/ajax/eliminarAdjuntoPaso/' + nIdeAdjunto);
+        };
+
+        service.getLugarPorSede = function (tipo) {
+            return $http.get(constants.SERVICIOS_REST.LUGAR_POR_SEDE + tipo);
+        };
+
+        service.getMedioContactoPorPersona = function (nIdePersona) {
+            return $http.get(constants.SERVICIOS_REST.MEDIO_CONTACTO_POR_PERSONA + nIdePersona);
+        };
+
+        service.getAreaPorSede = function (nIdeSede) {
+            return $http.get(constants.SERVICIOS_REST.AREA_POR_SEDE + nIdeSede);
+        };
+
+        service.getAreaPorCategoria = function (nIdeCategoria) {
+            return $http.get(constants.SERVICIOS_REST.AREA_POR_CATEGORIA + nIdeCategoria);
+        };
+
+        service.getTreeArea = function (sendData) {
+            return $http.post(constants.SERVICIOS_REST.LISTADO_TREE_AREA, sendData);
+        };
+
+        service.listarCentroCostoTree = function (sendData) {
+            return $http.post(constants.SERVICIOS_REST.LISTADO_TREE_CENTRO_COSTO, sendData);
+        };
+
+        service.getDetallePersona = function (nIdePersona) {
+            return $http.get(utilFactory.getBasePath() + 'externo/utilrestcontroller/detallePersona/datosGenerales/' + nIdePersona);
+        }
+
+        service.buscarPersona = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/buscarPersona', data);
+        }
+
+        service.buscarPersonaAlq = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/buscarPersonaAlq', data);
+        }
+
+        service.buscarColegiado = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/buscarColegiado', data);
+        }
+
+        service.buscarPersonaCip = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/buscarPersonaCip', data);
+        }
+
+        service.buscarPersonaCipReniec = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/buscarPersonaCipReniec', data);
+        }
+
+        service.listarPersona = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/listarPersona', data);
+        }
+
+        service.buscarColegiadoPorCip = function (nRegCip) {
+            return $http.get(utilFactory.getBasePath() + 'interno/common/buscarColegiadoPorCip/' + nRegCip);
+        }
+
+        service.getSessionData = function () {
+            return $http.get(constants.SERVICIOS_REST.SESSION_DATA);
+        }
+
+        service.consultarReniec = function (vDni) {
+            return $http.get(utilFactory.getBasePath() + 'interno/activaCuenta/consultarReniec/' + vDni);
+        }
+
+        service.uploadField = function (url, data) {
+            return $http({
+                method: 'POST',
+                url: url,
+                headers: {'Content-Type': undefined},
+                data: data,
+                transformRequest: angular.identty
+            });
+        }
+
+        service.listarEspecialidadPorSede = function (nIdeSede) {
+            return $http.get(constants.SERVICIOS_REST.ESPECIALIDAD_POR_SEDE + nIdeSede);
+        }
+
+        service.obtenerCapituloPorSedeYEspecialidadId = function (nIdeSede, nIdeEspecialidad) {
+            return $http.get(constants.SERVICIOS_REST.CAPITULO_POR_SEDE_Y_ESPECIALIDAD + nIdeSede + '/' + nIdeEspecialidad);
+        }
+
+        service.obtenerCapituloPorSede = function (nIdeSede) {
+            return $http.get(constants.SERVICIOS_REST.CAPITULO_POR_SEDE + nIdeSede);
+        }
+
+        service.listarEspecialidadPorAsignar = function (nIdeSede) {
+            return $http.get(utilFactory.getBasePath() + 'externo/utilrestcontroller/listarEspecialidadPorAsignar/' + nIdeSede);
+        }
+
+        service.getTipoCambio = function () {
+            return $http.get(constants.BASE_PATH.CATALOGOS_WS + '/externo/tipoCambio/getVigente');
+        }
+
+        service.listarArticuloPorArea = function () {
+            return $http.get(constants.SERVICIOS_REST.ARTICULO_POR_AREA);
+        }
+        
+        service.listarArticuloPorAreaParaEvento = function () {
+            return $http.get(constants.SERVICIOS_REST.ARTICULO_POR_AREA_PARA_EVENTO);
+        }
+
+        service.listarArticuloPorAreaYTipoArticulo = function (nIdeTipoArticulo) {
+            return $http.get(constants.SERVICIOS_REST.ARTICULO_POR_AREA_Y_TIPO_ARTICULO + nIdeTipoArticulo);
+        }
+
+        service.listarArticuloPorSede = function () {
+            return $http.get(constants.SERVICIOS_REST.ARTICULO_POR_SEDE);
+        }
+
+        service.consultarReniec = function (vDni) {
+            return $http.get(utilFactory.getBasePath() + 'interno/activaCuenta/consultarReniec/' + vDni);
+        }
+
+        service.obtenerPersonaRENIEC = function (vNumDoc) {
+            return $http.get(utilFactory.getBasePath() + 'interno/common/obtenerPersonaRENIEC/' + vNumDoc);
+        }
+
+        service.listarEmisorPorSede = function () {
+            return $http.get(constants.SERVICIOS_REST.EMISOR_POR_SEDE);
+        }
+
+        /**------------------------------------*\
+         PERSONA
+         \*------------------------------------*/
+        service.listarCuentaBancariaPersona = function (sendData) {
+            return $http.post(constants.SERVICIOS_REST.CUENTA_BANCARIA_POR_PERSONA, sendData);
+        }
+
+        service.listarDireccionPersona = function (nIdePersona) {
+            return $http.get(utilFactory.getBasePath() + 'externo/utilrestcontroller/detallePersona/listarDireccionPersona/' + nIdePersona);
+        }
+
+        service.listarMedioContactoPersona = function (nIdePersona) {
+            return $http.get(utilFactory.getBasePath() + 'externo/utilrestcontroller/detallePersona/listarMedioContactoPersona/' + nIdePersona);
+        }
+
+        service.listarFamiliarPersona = function (nIdePersona) {
+            return $http.get(utilFactory.getBasePath() + 'externo/utilrestcontroller/detallePersona/listarFamiliar/' + nIdePersona);
+        }
+
+        service.listarPersonaContacto = function (nIdePersona) {
+            return $http.get(utilFactory.getBasePath() + 'externo/utilrestcontroller/detallePersona/listarPersonaContacto/' + nIdePersona);
+        }
+
+        service.listarCondicionPagoPersona = function (nIdePersona) {
+            return $http.get(utilFactory.getBasePath() + 'externo/utilrestcontroller/detallePersona/listarCondicionPago/' + nIdePersona);
+        }
+
+        service.registrarPersonaBasico = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/registrarPersonaBasico', data);
+        }
+
+        service.actualizarPersonaBasico = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/actualizarPersonaBasico', data);
+        }
+
+        service.actualizarRucPersona = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/actualizarRucPersona', data);
+        }
+
+        service.listarRubroTree = function () {
+            return $http.get(utilFactory.getBasePath() + 'interno/common/listarRubroTree');
+        }
+
+        service.listarPartidaPorSedeYArticulo = function (nIdeSede, nIdeArticulo) {
+            return $http.get(constants.BASE_PATH.CATALOGOS_WS + '/externo/catalogos/listarPartidaPorSedeYArticulo/' + nIdeSede + '/' + nIdeArticulo);
+        }
+
+        service.listarCtaContablePorSedeYArticulo = function (nIdeSede, nIdeArticulo) {
+            return $http.get(constants.BASE_PATH.CATALOGOS_WS + '/externo/catalogos/listarCtaContablePorSedeYArticulo/' + nIdeSede + '/' + nIdeArticulo);
+        }
+
+        service.listarTipoBusquedaColegiado = function () {
+            return [
+                {id: 2, nombre: 'NUMERO DE DOCUMENTO'},
+                {id: 3, nombre: 'APELLIDOS Y NOMBRES'}
+            ];
+        }
+
+        service.yesNoList = function () {
+            return [
+                {id: 1, nombre: 'SI'},
+                {id: 0, nombre: 'NO'}
+            ];
+        }
+
+        service.listarRubroFiltro = function (data) {
+            return $http.post(utilFactory.getBasePath() + 'interno/common/listarRubroFiltro', data);
+        }
+
+        return service;
+    }]);
+}());

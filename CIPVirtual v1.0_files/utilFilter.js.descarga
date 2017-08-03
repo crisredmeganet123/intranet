@@ -1,0 +1,127 @@
+(function(){
+	var app = angular.module('sice');
+	app.filter('maxLength', function(){
+		return function(text, max){
+			if(text != null){
+				if(text.length > max){
+					return text.substring(0, max) + '...';
+				}else{
+					return text;
+				}
+			}
+		}
+	});
+
+	app.filter('hyphenIfNull', function(){
+		return function(text){
+			if(text == null || text == ''){
+				return '---';
+			}else{
+				return text;
+			}
+		}
+	});
+
+	app.filter('ifEmpty', function(){
+		return function(input, defaultValue) {
+			if (angular.isUndefined(input) || input === null || input === '') {
+				return defaultValue;
+			}
+			return input;
+		}
+	});
+
+	app.filter('range', function() {
+		return function(input, min, max, minDigitNumber) {
+			min = parseInt(min);
+			max = parseInt(max);
+			minDigitNumber = typeof minDigitNumber !== 'undefined' ? parseInt(minDigitNumber) : 1;
+			var padLeft = '';
+			for(var i = 1; i < minDigitNumber; i++){
+				padLeft += '0';
+			}
+			if(min <= max){
+				for (var i=min; i<=max; i++) {
+					var formatVal = padLeft + i;
+					var value = minDigitNumber != 1 ? formatVal.substring(formatVal.length - minDigitNumber) : i;
+					input.push(value);
+				}
+			}else{
+				for (var i=min; i>=max; i--) {
+					var formatVal = padLeft + i;
+					var value = minDigitNumber != 1 ? formatVal.substring(formatVal.length - minDigitNumber) : i;
+					input.push(value);
+				}
+			}
+
+			return input;
+		};
+	});
+
+    app.filter('padLeft', function() {
+        return function(text, minDigitNumber, padChar) {
+            minDigitNumber = typeof minDigitNumber !== 'undefined' ? parseInt(minDigitNumber) : 1;
+            padChar = typeof padChar !== 'undefined' ? padChar : '0';
+            var padLeft = '';
+            for(var i = 1; i < minDigitNumber; i++){
+                padLeft += padChar;
+            }
+            var formatVal = padLeft + text;
+            var value = minDigitNumber != 1 ? formatVal.substring(formatVal.length - minDigitNumber) : text;
+            return value;
+        };
+    });
+
+	app.filter('padRight', function() {
+		return function(text, maxDigitNumber, padChar) {
+			for(var i = text.length; i <= maxDigitNumber; i++){
+				text += padChar;
+			}
+
+			return text;
+			// maxDigitNumber = typeof maxDigitNumber !== 'undefined' ? parseInt(maxDigitNumber) : 1;
+			// padChar = typeof padChar !== 'undefined' ? padChar : '0';
+			// var padLeft = '';
+			// for(var i = 1; i < maxDigitNumber; i++){
+			// 	padLeft += padChar;
+			// }
+			// var formatVal = text + padLeft;
+			// var value = (maxDigitNumber != 1) ? formatVal.substring(0, maxDigitNumber) : text;
+			// return value;
+		};
+	});
+
+	app.filter('objectFilter', function() {
+		return function(object, array) {
+			return true;
+		};
+	});
+
+	app.filter('num', function() {
+		return function(input) {
+			return parseInt(input);
+		}
+	});
+
+	app.filter('mapTipoMoneda', ['constants', function(constants) {
+		var genderHash = {};
+		genderHash[constants.TIPO_MONEDA.SOLES] = 'Soles';
+		genderHash[constants.TIPO_MONEDA.DOLARES] = 'Dolares';
+
+
+		return function(input) {
+			if (!input){
+				return '';
+			} else {
+				return genderHash[input];
+			}
+		};
+	}])
+
+	app.filter('trustAsHtml', ['constants', '$sce', function(constants, $sce) {
+		return function(text) {
+			return $sce.trustAsHtml(text);
+		};
+	}])
+
+}());

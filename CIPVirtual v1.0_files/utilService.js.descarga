@@ -1,0 +1,121 @@
+(function(){
+	var app = angular.module('sice');
+	app.service('utilService', ['$rootScope', '$timeout', '$modal', function($rootScope, $timeout, $modal){
+
+		this.informationModalList = function(listMsg, title, size){
+			var title = typeof title !== 'undefined' ? title : 'INFORMACIÓN DEL SISTEMA';
+			var size = typeof size !== 'undefined' ? size : 'sm';
+			var content = '<div class="modal-header modal-header-info">\
+				<h4 class="modal-title">' + title + '</h4>\
+				</div>';
+			var contentList = '<div class="modal-body">';
+			angular.forEach(listMsg, function(key, value){
+				contentList = contentList +  key + '<br>'  ;
+			});
+			content = content + contentList +'</div>';
+			content = content + '<div class="modal-footer">\
+					<button class="btn btn-sm btn-primary" ng-click="ok()"  focus-on="defaultButton" id="btnYes">Aceptar</button>\
+				</div>';
+
+			var modalInstance = $modal.open({
+				template: content,
+				controller: 'modalController',
+				size: size
+			});
+			return modalInstance;
+		};
+
+		this.informationModal = function(msg, title, size){
+            var title = typeof title !== 'undefined' && title != '' ? title : 'INFORMACIÓN DEL SISTEMA';
+			var size = typeof size !== 'undefined' ? size : 'sm';
+
+			var content = '<div class="modal-header modal-header-info">\
+				<h4 class="modal-title">' + title + '</h4>\
+				</div>\
+				<div class="modal-body">' + msg + '</div>\
+				<div class="modal-footer">\
+					<button class="btn btn-primary btn-sm" ng-click="ok()"  focus-on="defaultButton" id="btnYes">Aceptar</button>\
+				</div>';
+
+			var modalInstance = $modal.open({
+				template: content,
+				controller: 'modalController',
+				size: size
+			});
+			return modalInstance;
+		};
+		this.confirmModal = function(message, size){
+			var size = typeof size !== 'undefined' ? size : 'sm';
+			var content = '<div class="modal-header modal-header-info">\
+				    <h4 class="modal-title">INFORMACIÓN DEL SISTEMA</h4>\
+				</div>\
+				<div class="modal-body">\
+					' + message + '\
+				</div>\
+				<div class="modal-footer">\
+				    <button class="btn btn-primary btn-sm" ng-click="ok()" id="btnYes">Si</button>\
+    				<button class="btn btn-warning btn-sm" ng-click="cancel($event)">No</button>\
+				</div>';
+			var modalInstance = $modal.open({
+				template: content,
+				controller: 'modalController',
+				size: size
+			});
+			return modalInstance;
+		};
+
+		this.warningModal = function(msg, title){
+			var title = typeof title !== 'undefined' ? title : 'INFORMACIÓN DEL SISTEMA';
+			var content = '<div class="modal-header modal-header-info">\
+				<h4 class="modal-title ">' + title + '</h4>\
+				</div>\
+				<div class="modal-body">' + msg + '</div>\
+				<div class="modal-footer">\
+					<button class="btn btn-primary btn-sm" ng-click="ok()"  focus-on="defaultButton" id="btnYes">Aceptar</button>\
+				</div>';
+
+			var modalInstance = $modal.open({
+				template: content,
+				controller: 'modalController',
+				size: 'sm'
+			});
+			return modalInstance;
+		};
+
+		this.successModal = function(msg, title, size){
+			var title = typeof title !== 'undefined' || title == '' ? title : 'INFORMACIÓN DEL SISTEMA';
+			var size = typeof size !== 'undefined' ? size : 'sm';
+			var content = '<div class="modal-header modal-header-info">\
+				<h4 class="modal-title ">' + title + '</h4>\
+				</div>\
+				<div class="modal-body">' + msg + '</div>\
+				<div class="modal-footer">\
+					<button class="btn btn-primary btn-sm" ng-click="ok()"  focus-on="defaultButton" id="btnYes">Aceptar</button>\
+				</div>';
+
+			var modalInstance = $modal.open({
+				template: content,
+				controller: 'modalController',
+				size: size
+			});
+			return modalInstance;
+		};
+
+		this.errorModal = function(message){
+			var content = '<div class="modal-header modal-header-error">\
+				    <h4 class="modal-title text-danger">Error</h4>\
+				</div>\
+				<div class="modal-body text-danger">\
+					' + message + '\
+				</div>\
+				<div class="modal-footer">\
+				    <button class="btn btn-primary btn-sm" ng-click="ok()"  focus-on="defaultButton">Aceptar</button>\
+				</div>';
+			$modal.open({
+				template: content,
+				controller: 'modalController',
+				size: 'sm'
+			});
+		};
+	}]);
+}());

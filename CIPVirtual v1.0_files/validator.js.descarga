@@ -1,0 +1,106 @@
+function validator(object){
+	object.StopOnFirstFailure = object.hasOwnProperty('StopOnFirstFailure') ? object.StopOnFirstFailure : true;
+	var regExpEmail = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+	var regExpDig =  /^\d+$/;
+		
+	var msg = '';
+	var valRes = {};
+	for(var model in object.rules){
+		var item = object.rules[model];
+		var value = item.hasOwnProperty('value') ? object.rules[model].value : $('#' + model + '').val();
+
+		//Required validation
+		if(item.hasOwnProperty('required') && (value == null || value == '')){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' es un campo requerido.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+		
+		//MinLengh validation
+		if(item.hasOwnProperty('length') && value.length < object.rules[model].length){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener una longitud de ' + object.rules[model].length + ' carácteres.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+
+		//MinLengh validation
+		if(item.hasOwnProperty('minLength') && value.length < object.rules[model].minLength){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener una longitud mínima de ' + object.rules[model].minLength + ' carácteres.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+
+		//MaxLength validation
+		if(item.hasOwnProperty('maxLength') && value.length > object.rules[model].maxLength){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener una longitud máxima de ' + object.rules[model].maxLength + ' carácteres.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+
+		//Min validation
+		if(item.hasOwnProperty('min') && value < object.rules[model].min){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener un valor minimo de ' + object.rules[model].min + '.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+		//Email validation
+		if(item.hasOwnProperty('email') && !regExpEmail.test(value)){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' no tiene el formato correcto' + '.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+		
+		//Digit validation
+		if(item.hasOwnProperty('digit') && !regExpDig.test(value)){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' no tiene el formato correcto' + '.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+		
+		//Regular Expresion
+		var cusRegExp = object.rules[model].regExp;
+		if(item.hasOwnProperty('regExp') && !cusRegExp.test(value)){
+			msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' no tiene el formato correcto' + '.<br>';
+			if(object.StopOnFirstFailure){
+				continue;
+			}
+		}
+
+        //Ruc validation
+        if(item.hasOwnProperty('isRuc') &&  object.rules[model].isRuc && !validarRUC(value)){
+            msg += "<strong>'" + object.rules[model].withName + "'</strong>" + '  no tiene el formato correcto<br>';
+            if(object.StopOnFirstFailure){
+                continue;
+            }
+        }
+	}
+	valRes.isValid = msg.length <= 0;
+	valRes.errors = msg;
+	return valRes;
+}
+
+function validarRUC(ruc)
+{
+    var factores = new String("5432765432");
+    var ultimoIndex = ruc.length - 1;
+    var sumaTotal = 0, residuo = 0;
+    var ultimoDigitoRUC = 0, ultimoDigitoCalc = 0;
+
+    for(var i=0;i<ultimoIndex;i++)
+    {
+        sumaTotal += (parseInt(ruc.charAt(i)) * parseInt(factores.charAt(i)));
+    }
+    residuo = sumaTotal%11;
+
+    ultimoDigitoCalc = (residuo == 10) ? 0: ((residuo == 11) ? 1:(11 - residuo)%10);
+    ultimoDigitoRUC = parseInt(ruc.charAt(ultimoIndex));
+
+    return ultimoDigitoRUC == ultimoDigitoCalc;
+}

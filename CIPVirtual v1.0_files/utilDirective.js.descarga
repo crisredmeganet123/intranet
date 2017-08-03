@@ -1,0 +1,754 @@
+(function(){
+	var app = angular.module('sice');
+	app.directive('dblclickClear', function(){
+		return {
+			restrict: 'C',
+			require: 'ngModel',
+			link: function(scope, elm, attrs, ngModel){
+				elm.on('dblclick', function(e){
+                    ngModel.$setViewValue(null);
+                	ngModel.$render();
+	                scope.$apply();
+				});
+			}
+		}
+	});
+	app.directive('number', function(){
+		return {
+			restrict: 'C',
+			require: 'ngModel',
+			link: function(scope, element, attrs, modelCtrl){
+				modelCtrl.$parsers.push(function (inputValue){
+				   if (inputValue == undefined) return '' 
+				   var transformedInput = inputValue.replace(/[^0-9.]/g, ''); 
+				   if (transformedInput != inputValue){
+				      modelCtrl.$setViewValue(transformedInput);
+				      modelCtrl.$render();
+				   }
+
+				   if(isNaN(transformedInput)){
+				   		modelCtrl.$setViewValue('');
+				      	modelCtrl.$render();
+				   }
+
+				   return transformedInput;         
+				});
+			}
+		};
+	});
+	app.directive('digit', function(){
+		return {
+			restrict: 'C',
+			require: 'ngModel',
+			link: function(scope, element, attrs, modelCtrl){
+				modelCtrl.$parsers.push(function (inputValue){
+					if (inputValue == undefined) return ''
+			           var transformedInput = inputValue.replace(/[^0-9]/g, '');
+			           if (transformedInput!=inputValue) {
+			              modelCtrl.$setViewValue(transformedInput);
+			              modelCtrl.$render();
+			           }
+			           return transformedInput;
+				});
+			}
+		};
+	});
+
+    app.directive('phoneNumber', function(){
+        return {
+            restrict: 'C',
+            require: 'ngModel',
+            link: function(scope, element, attrs, modelCtrl){
+                modelCtrl.$parsers.push(function (inputValue){
+                    if (inputValue == undefined) return ''
+                    var transformedInput = inputValue.replace(/[^0-9A-Za-z*\-#+]/g, '');
+                    if (transformedInput!=inputValue) {
+                        modelCtrl.$setViewValue(transformedInput);
+                        modelCtrl.$render();
+                    }
+                    return transformedInput;
+                });
+            }
+        };
+    });
+
+    app.directive('alfnum', function(){
+        return {
+            restrict: 'C',
+            require: 'ngModel',
+            link: function(scope, element, attrs, modelCtrl){
+                modelCtrl.$parsers.push(function (inputValue){
+                    if (inputValue == undefined) return ''
+                    var transformedInput = inputValue.replace(/[^0-9A-Za-zñÑáéíóúÁÉÍÓÚ .,:\-/@_&\"()*+']/g, '');
+                    if (transformedInput!=inputValue) {
+                        modelCtrl.$setViewValue(transformedInput);
+                        modelCtrl.$render();
+                    }
+                    return transformedInput;
+                });
+            }
+        };
+    });
+
+    app.directive('string', function(){
+        return {
+            restrict: 'C',
+            require: 'ngModel',
+            link: function(scope, element, attrs, modelCtrl){
+                modelCtrl.$parsers.push(function (inputValue){
+                    if (inputValue == undefined) return ''
+                    var transformedInput = inputValue.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ']/g, '');
+                    if (transformedInput!=inputValue) {
+                        modelCtrl.$setViewValue(transformedInput);
+                        modelCtrl.$render();
+                    }
+                    return transformedInput;
+                });
+            }
+        };
+    });
+
+    app.directive('customValid', function(){
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            scope: {
+                customValid: '='
+            },
+            link: function(scope, element, attrs, modelCtrl){
+                modelCtrl.$parsers.push(function (inputValue){
+                    if (inputValue == undefined) return '';
+                    var regExp = new RegExp(scope.customValid, 'gi');
+                    var transformedInput = inputValue.replace(regExp, '');
+                    if (transformedInput!=inputValue) {
+                        modelCtrl.$setViewValue(transformedInput);
+                        modelCtrl.$render();
+                    }
+                    return transformedInput;
+                });
+            }
+        };
+    });
+
+    //app.directive('documentNumber', function(){
+    //    return {
+    //        restrict: 'C',
+    //        require: 'ngModel',
+    //        link: function(scope, element, attrs, modelCtrl){
+    //            modelCtrl.$parsers.push(function (inputValue){
+    //                if (inputValue == undefined) return ''
+    //                var transformedInput = inputValue.replace(/[^0-9A-Za-z\-]/g, '');
+    //                if (transformedInput!=inputValue) {
+    //                    modelCtrl.$setViewValue(transformedInput);
+    //                    modelCtrl.$render();
+    //                }
+    //                return transformedInput;
+    //            });
+    //        }
+    //    };
+    //});
+
+	app.directive('uppercase', function() {
+	   return {
+            restrict: 'C',
+            require: 'ngModel',
+            link: function(scope, element, attrs, modelCtrl) {
+                var uppercase = function(inputValue) {
+                if(inputValue == undefined) inputValue = '';
+                var capitalized = inputValue.toUpperCase();
+                if(capitalized !== inputValue) {
+                  modelCtrl.$setViewValue(capitalized);
+                  modelCtrl.$render();
+                }
+                return capitalized;
+                }
+                modelCtrl.$parsers.push(uppercase);
+                uppercase(scope[attrs.ngModel]);  // capitalize initial value
+            }
+       };
+	});
+
+    app.directive('lowercase', function() {
+        return {
+            restrict: 'C',
+            require: 'ngModel',
+            link: function(scope, element, attrs, modelCtrl) {
+                var uppercase = function(inputValue) {
+                    if(inputValue == undefined) inputValue = '';
+                    var capitalized = inputValue.toLowerCase();
+                    if(capitalized !== inputValue) {
+                        modelCtrl.$setViewValue(capitalized);
+                        modelCtrl.$render();
+                    }
+                    return capitalized;
+                }
+                modelCtrl.$parsers.push(uppercase);
+                uppercase(scope[attrs.ngModel]);  // capitalize initial value
+            }
+        };
+    });
+
+    app.directive('autocompleteSice', function ($parse) {
+        return {
+            restrict: 'A',
+            link: function(scope, elem, attr, ctrl) {
+                $(elem).on('keyup', function(){
+                    var label = scope[elem.attr('selected-object')].label;
+                    var value = scope[elem.attr('selected-object')].value;
+                    if(label != value && scope[elem.attr('selected-object')].id){
+                        var object = scope[elem.attr('selected-object')];
+                        object.id = null;
+                        $parse(elem.attr('selected-object')).assign(scope, object);
+                        scope.$apply();
+                    }
+                });
+                elem.autocomplete({
+                    search: function(){
+                        //elem.addClass('ui-autocomplete-loader');
+                        elem.autocomplete('option', 'source', attr.url );
+                    },
+                    minLength: 3,
+                    select: function(event, ui){
+                        $parse(elem.attr('selected-object')).assign(scope, ui.item);
+                        if($('[ng-model="' + elem.attr('focused') + '"]').length){
+                            $('[ng-model="' + elem.attr('focused') + '"]').focus();
+                        }else{
+                            $('#' + elem.attr('focused')).focus();
+                        }
+
+                        //$('#' + elem.attr('focused') + '').focus();
+                        if(elem.attr('select-fn')){
+                            scope[elem.attr('select-fn')]();
+                            scope.$apply();
+                        }
+                        scope.$apply();
+                    },
+                    focus: function(event, ui){
+                        event.preventDefault();
+                    },
+                    change: function(event, ui){
+                        var label = scope[elem.attr('selected-object')].label;
+                        var value = scope[elem.attr('selected-object')].value;
+                        if(label != value){
+                            $parse(elem.attr('selected-object')).assign(scope, {});
+                            scope.$apply();
+                        }
+                    }
+                });
+            }
+        };
+    });
+
+    app.directive('datePicker', ['utilFactory', function(utilFactory){
+        return{
+            restrict: 'C',
+            require: 'ngModel',
+            scope: {
+                maxDate: '=',
+                minDate: '=',
+                ngModel: '='
+            },
+            link: function(scope, elem, attr, ngModelCtrl){
+                elem.datepicker({
+                    yearRange: '-100:+30',
+                    onSelect: function(date){
+                        ngModelCtrl.$setViewValue(date);
+                        ngModelCtrl.$render();
+                        scope.$apply();
+                    },
+                    beforeShow: function (element, datepicker) {
+
+                        var minDate = scope.minDate || scope.ngModel;
+                        if(scope.minDate){
+                            elem.datepicker('option', 'minDate', scope.minDate);
+                        }
+
+                        if(scope.maxDate){
+                            elem.datepicker('option', 'maxDate', scope.maxDate);
+
+                            //elem.datepicker('option', 'minDate', scope.minDate);
+                        }
+                    }
+                });
+            }
+        }
+    }]);
+
+    app.directive('datePickerV2', ['utilFactory', '$parse', function(utilFactory, $parse){
+        return{
+            restrict: 'C',
+            require: 'ngModel',
+            scope: {
+                ngModel: '=',
+                minDate: '=',
+                maxDate: '=',
+                maxSelectDate : '='
+            },
+            link: function(scope, elem, attr, ngModelCtrl){
+                elem.datepicker({
+                    yearRange: '-100:+5',
+                    maxDate: scope.maxSelectDate,
+                    onSelect: function(date) {
+                        ngModelCtrl.$setViewValue(date);
+                        ngModelCtrl.$render();
+                        scope.$apply();
+
+                        //Is end date
+                        if (attr.minDate) {
+                            //If max date is less than min date
+                            if (utilFactory.dateIsGreaterThan(scope.minDate, scope.ngModel)) {
+                                scope.minDate = scope.ngModel;
+                                scope.$apply();
+                            } else if (attr.maxRangeDay) {
+                                var range = utilFactory.subtractDate(scope.ngModel, scope.minDate);
+                                if (range > attr.maxRangeDay) {
+                                    scope.minDate = utilFactory.plusDayToDate(scope.minDate, range - attr.maxRangeDay);
+                                    scope.$apply();
+                                }
+                            }
+                        } else { //Is min date
+                            //If min date is greater than max date
+                            if (utilFactory.dateIsGreaterThan(scope.ngModel, scope.maxDate)) {
+                                scope.maxDate = scope.ngModel;
+                                scope.$apply();
+                            } else if (attr.maxRangeDay) {
+                                var range = utilFactory.subtractDate(scope.maxDate, scope.ngModel);
+                                if (range > attr.maxRangeDay) {
+                                    scope.maxDate = utilFactory.restartDayToDate(scope.maxDate, range - attr.maxRangeDay);
+                                    scope.$apply();
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }]);
+
+    app.directive('tabLine', function(){
+        return{
+            restrict: 'E',
+            template: function(elem, attr){
+                return '<div class="tab-line"><div class="tab-line-title">' + attr.header + '</div><div>';
+            }
+        }
+    });
+
+    app.directive('jqTabs', function($compile, $timeout) {
+        return function(scope, elem, attrs) {
+            elem.tabs({
+                load: function(event, ui) {
+                    $timeout(function() {
+                        $compile($(ui.panel).contents())(scope)
+                    });
+                },
+                beforeLoad: function (event, ui) {
+                    ui.jqXHR.error(function () {
+                        ui.panel.html("Cargando....");
+                    });
+                }
+            });
+        }
+    })
+
+    app.directive('path', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            transclude: true,
+            template: function(elem, attr){
+                var menu = '<span>' + attr.menu + '</span>';
+                var subMenu = attr.subMenu == 'null' ? '' : '<span class="separator">&raquo;</span><span>' + attr.subMenu + '</span>';
+                var tpl = '<div id="location" class="d-inline-block">' + menu + subMenu + '</div>';
+
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('container', function(){
+        return{
+            restrict: 'E',
+            template: function(elem, attr){
+                var tpl = '\
+                <div class="col-xs-12 modal-primary">\
+                    <div class="row">\
+                        <div class="col-xs-12 modal-header">\
+                            <h4>' + attr.header + '</h4>\
+                        </div>\
+                    </div>\
+                    <div class="row">\
+                    <div class="col-xs-12">' + $(elem).html() + '</div>\
+                    </div>\
+                    </div>\
+                ';
+
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('attachFile',['$timeout', function($timeout){
+        return{
+            restrict: 'E',
+            scope: {onChange : '&' },
+            template: function(elem, attr){
+                var tpl = '<span class="glyphicon glyphicon-paperclip"></span><input type="file" id="adjuntar" ng-show="false" onchange="angular.element(this).scope().fileChange(this)">';
+                return tpl;
+            },
+            link: function(scope, elem, attr, ngModelCtrl){
+                //var expressionHandler = scope.method();
+                elem.on('click', function(e){
+                    e.stopPropagation();
+                    $timeout(function () {
+                        $(elem).find(':file').click();
+                    })
+                });
+
+                scope.fileChange = function (element) {
+                    scope.onChange({file: element.files[0]});
+                }
+            }
+        }
+    }]);
+
+    app.directive('fileChange', function(){
+        return{
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                var onChangeHandler = scope.$eval(attrs.fileChange);
+                element.bind('change', onChangeHandler);
+            }
+        }
+    });
+
+    /*AlertAlerts*/
+    app.directive('utilAlert', function(){
+        return{
+            restrict: 'E',
+            transclude: true,
+            template: function(elem, attr){
+                var tpl = '\
+                <div class="alert alert-default">\
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> <span ng-transclude></span>\
+                </div>';
+                return tpl;
+            }
+        }
+    });
+
+    /*FileViewer*/
+    app.directive('fileLoader', function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                console.log('Iniciando');
+                if(element.is('img')){
+                    element.bind('load', function() {
+                        console.log('El archivo termino de cargar');
+                    });
+                }else{
+                    element[0].addEventListener('load', function() {
+                        console.log('El archivo termino de cargar');
+                    },true);
+                }
+            }
+        };
+    });
+
+    app.directive('btnNewRow', function(){
+        return{
+            restrict: 'E',
+            template: function(elem, attr){
+                var tpl = '<span class="glyphicon glyphicon-plus"></span>'
+                return tpl;
+            }
+        }
+    });
+    app.directive('modalCloseButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var ngClick = attr.ngClick ? attr.ngClick : 'close()';
+                var tpl = '<button type="button" class="close" data-dismiss="modal" aria-label="Close"  ng-click="' + ngClick + '"><span aria-hidden="true">&times;</span></button>';
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('modalCloseButtonBig', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tpl = '<span class="modal-close-button-big" ng-click="close()">x</span>';
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('helpButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Ver ayuda en linea';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom" tooltip-append-to-body="true"><span class="glyphicon glyphicon-question-sign"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('checkButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Activar';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'check';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"><span class="glyphicon glyphicon-' + glyphicon + '" tooltip-append-to-body="true"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('floppyDiskButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Registrar';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'floppy-disk';
+                var ngClick = attr.ngClick ? attr.ngClick : 'registrar()';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true" ng-click="' + ngClick + '"><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('refreshButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Actualizar';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'refresh';
+                var ngClick = attr.ngClick ? '' : ' ng-click="actualizar()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('plusButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Nuevo';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'plus';
+                var ngClick = attr.ngClick ? '' : ' ng-click="nuevo()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('editButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Editar';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'edit';
+                var ngClick = attr.ngClick ? '' : ' ng-click="editar()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('trashButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Eliminar';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'trash';
+                var ngClick = attr.ngClick ? '' : ' ng-click="eliminar()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('searchButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Buscar';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'search';
+                var ngClick = attr.ngClick ? '' : ' ng-click="buscar()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('listAltButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Ver Detalle';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'list-alt';
+                var ngClick = attr.ngClick ? '' : ' ng-click="verDetalle()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('paperclipButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Adjuntar Archivo';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'paperclip';
+                var ngClick = attr.ngClick ? '' : ' ng-click="adjuntar()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('copyButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Copiar';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'copy';
+                var ngClick = attr.ngClick ? '' : ' ng-click="copiar()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+    app.directive('printButton', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: function(elem, attr){
+                var tooltip = attr.tooltip ? attr.tooltip : 'Imprimir';
+                var glyphicon = attr.glyphicon ? attr.glyphicon : 'print';
+                var ngClick = attr.ngClick ? '' : ' ng-click="imprimir()"';
+                var tpl = '<button class="btn btn-default"  tooltip="' + tooltip + '" tooltip-placement="bottom"  tooltip-append-to-body="true"' + ngClick + '><span class="glyphicon glyphicon-' + glyphicon + '"></span></button>'
+                return tpl;
+            }
+        }
+    });
+
+
+    app.directive('requiredInfo', function(){
+        return{
+            restrict: 'E',
+            template: '<strong>Campo requerido<span class="required">(*)</span></strong>'
+        }
+    });
+
+    app.directive('requiredField', function(){
+        return{
+            restrict: 'E',
+            replace:true,
+            template: '<span class="required">(*)</span>'
+        }
+    });
+
+    app.directive('required', function(){
+        return{
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                if(attrs.type != 'number' && $(element).is('label')){
+                    element.after('<span class="required">(*)</span>');
+                }
+            }
+        }
+    });
+
+    app.directive('youtubeViewer', function($sce){
+        return {
+            restrict: 'E',
+            scope: { url:'=' },
+            replace: true,
+            template: '<iframe width="100%" height="400px" src="{{videoUrl}}" frameborder="0" allowfullscreen></iframe>',
+            link: function (scope) {
+                scope.$watch('url', function (newVal) {
+                    if (newVal) {
+                        scope.videoUrl = $sce.trustAsResourceUrl(newVal);
+                    }
+                });
+            }
+        };
+    });
+
+    app.directive('ngEmbed', function($sce){
+        return {
+            restrict: 'E',
+            scope: { url:'=' },
+            replace: true,
+            template: '<embed ng-src="fileUrl" type="application/pdf" width="100%" height="500"/>',
+            link: function (scope) {
+                console.log('here');
+                scope.$watch('url', function (newVal) {
+                    if (newVal) {
+                        scope.fileUrl = $sce.trustAsResourceUrl(newVal);
+                    }
+                });
+            }
+        };
+    });
+
+    app.directive('embedSrc', function () {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                scope.$watch(
+                    function() {
+                        return attrs.embedSrc;
+                    },
+                    function() {
+                        element.attr('src', attrs.embedSrc);
+                    }
+                );
+            }
+        };
+    });
+
+    app.directive('clickOutside', function ($parse, $timeout) {
+        return {
+            link: function (scope, element, attrs) {
+                function handler(event) {
+                    if(!$(event.target).closest(element).length) {
+                        scope.$apply(function () {
+                            $parse(attrs.clickOutside)(scope);
+                        });
+                    }
+                }
+
+                $timeout(function () {
+                    // Timeout is to prevent the click handler from immediately
+                    // firing upon opening the popover.
+                    $(document).on("click", handler);
+                });
+                scope.$on("$destroy", function () {
+                    $(document).off("click", handler);
+                });
+            }
+        }
+    });
+}());

@@ -1,0 +1,80 @@
+function detectaTeclaF5() {
+    if (window.event) {
+        if (window.event.keyCode == 116) {
+            window.event.keyCode = 0;
+            return false;
+        }
+    }
+}
+function anulaBotonDerecho(e) {
+    if (document.layers) window.captureEvents(Event.MOUSEDOWN);
+    if (navigator.appName == 'Netscape' && (e.which == 3 || e.which == 2)) {
+        alert("CIP: todos los derechos Reservados");
+        return false;
+    } else if (navigator.appName == 'Microsoft Internet Explorer' && (event.button == 2 || event.button == 3)) {
+        alert("CIP: todos los derechos Reservados");
+        return false;
+    }
+    return true;
+}
+function validaCaracterTamanio(objCampo, e, tamanio) {
+    var caracteres = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789";
+    var teclasPermitidos = [8, 20, 0, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 63, 64, 35, 32,95];
+    var NoPermitir = false;
+    var tecla = (document.all) ? e.keyCode : e.which;
+    //console.log('Tecla : ' + tecla);
+   // alert(tecla);
+    var caracter = String.fromCharCode(tecla);
+    //console.log("caracter : " + caracter);
+    var valor = $.trim($(objCampo).val());
+
+    if (valor.length >= tamanio) {
+        var mensaje = "Solo son permitidos " + tamanio + " caracteres";
+        alert(mensaje);
+        return false;
+    } else {
+        for (var i in teclasPermitidos) {
+            if (tecla === teclasPermitidos[i]) {
+                NoPermitir = true;
+                break;
+            }
+        }
+    }
+    return caracteres.indexOf(caracter) !== -1 || NoPermitir;
+}
+function validaCaracterMedioContactoTamanio(objCampo, e, tamanio) {
+    var caracteres = "abcdefghijklmn_opqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    var teclasPermitidos = [35, 42, 45, 46, 64];
+    //8, 20, 0, 40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 63, 64, 35, 32,95
+    var NoPermitir = false;
+    tecla = (document.all) ? e.keyCode : e.which;
+  // alert(tecla);
+    var caracter = String.fromCharCode(tecla);
+    var valor = $.trim($(objCampo).val());
+
+    if (valor.length >= tamanio) {
+        var mensaje = "Solo son permitidos " + tamanio + " caracteres";
+        alert(mensaje);
+        return false;
+    } else {
+        for (var i in teclasPermitidos) {
+            if (tecla === teclasPermitidos[i]) {
+                NoPermitir = true;
+                break;
+            }
+        }
+    }
+    return caracteres.indexOf(caracter) !== -1 || NoPermitir;
+}
+
+function validateEmail(email) {
+	var regex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+	return regex.test(email);
+}
+
+function cleanBox(objCampo) {
+	$(objCampo).val('');
+   // objCampo.value = '';
+}
+
+//

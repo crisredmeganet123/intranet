@@ -1,0 +1,677 @@
+(function () {
+    var app = angular.module('sice');
+
+    app.controller('modalController', ['$scope', '$modalInstance', '$timeout', 'utilFactory', function ($scope, $modalInstance, $timeout, utilFactory) {
+        $scope.ok = function () {
+            $modalInstance.close();
+        };
+
+        $scope.cancel = function (event) {
+            event.preventDefault();
+            $modalInstance.dismiss();
+        };
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        };
+
+        $modalInstance.opened.then(function () {
+            $timeout(function () {
+                utilFactory.focus('btnYes');
+            }, 20);
+        });
+    }]);
+
+    app.controller('adjuntarArchivoController', ['$scope', '$modalInstance', '$timeout', 'constants', 'utilFactory', 'commonService', function ($scope, $modalInstance, $timeout, constants, utilFactory, commonService) {
+        $scope.file;
+
+        commonService.getCompendio(constants.IDE_COMPENDIO.TIPO_ARCHIVO_ADJUNTO, constants.NOMBRE_CORTO).success(function (data) {
+            $scope.tipoArchivoAdjuntos = data;
+        });
+
+        $scope.helpContent = '<div>\
+				<strong>Archivos Permitidos: </strong>\
+				<span class="required">(.pdf, .doc, .docx, .xls, .txt, .png, .jpg, .jpeg, .tif)</span>\
+				<strong>Tama&ntilde;o Máximo: </strong>\
+				<span class="required">2 Mb</span>\
+			</div>';
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss();
+        }
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+
+        $scope.attachFile = function () {
+            $timeout(function () {
+                angular.element('#attachFile').click();
+            });
+        }
+
+        $scope.fileChange = function (elm) {
+            if (elm.files.length > 0) {
+                var fileExt = elm.files[0].name.split('.').pop().toLowerCase();
+                var fileSize = elm.files[0].size;
+                var acceptExt = false;
+                for (var i = 0; i < constants.FILE_TYPE.UPLOAD.length; i++) {
+                    if ('.' + fileExt == constants.FILE_TYPE.UPLOAD[i]) {
+                        acceptExt = true;
+                        break;
+                    }
+                }
+
+                if (!acceptExt) {
+                    $scope.fileSelected = null;
+                    $scope.$apply();
+                    utilFactory.showAlert('Por favor; aseg&uacute;rate de seleccionar un archivo v&aacute;lido');
+                    return;
+                }
+
+                if (fileSize > constants.MAX_FILE_SIZE) {
+                    $scope.fileSelected = null;
+                    $scope.$apply();
+                    utilFactory.showAlert('Por favor; asegúrate de seleccionar un archivo con un tamaño válido');
+                    return;
+                }
+
+                elm.files[0].vDescr = $scope.vDescr;
+                elm.files[0].extension = fileExt;
+                $scope.fileSelected = elm.files[0];
+                $scope.$apply();
+            }
+        }
+
+        $scope.addAttachFile = function () {
+            if (!$scope.fileSelected) {
+                utilFactory.showAlert('Por favor; seleccione correctamente un archivo');
+                return;
+            }
+            if ($scope.selectedType == null) {
+                utilFactory.showAlert('Por favor; seleccione un tipo de archivo');
+                return;
+            }
+            $scope.fileSelected.nIdeTipoAdjunto = $scope.selectedType.idDetalle;
+            $modalInstance.close($scope.fileSelected);
+        }
+    }]);
+
+    app.controller('fileViewerController', ['$scope', '$modalInstance', 'pathURL', 'adjunto', 'adjuntos', 'modalSize', 'utilFactory', function ($scope, $modalInstance, pathURL, adjunto, adjuntos, modalSize, utilFactory) {
+        $scope.curFile = adjunto;
+        $scope.pathURL = pathURL;
+        $scope.files = adjuntos;
+        var finalUrl = '';
+
+        $scope.ok = function () {
+            $modalInstance.dismiss();
+        }
+
+        $scope.prevFile = function () {
+            var fileCount = $scope.files.length;
+            var curIndex = $scope.files.indexOf($scope.curFile);
+            var newIndex = curIndex == 0 ? fileCount - 1 : curIndex - 1;
+            $scope.curFile = $scope.files[newIndex];
+        }
+
+        $scope.nextFile = function () {
+            var fileCount = $scope.files.length;
+            var curIndex = $scope.files.indexOf($scope.curFile);
+            var newIndex = (curIndex + 1) == fileCount ? 0 : curIndex + 1;
+            $scope.curFile = $scope.files[newIndex];
+        }
+
+        $scope.$watch("curFile", function (newValue, oldValue) {
+            finalUrl = $scope.pathURL + $scope.curFile.nIdeAdjunto;
+            $scope.imageUrl = $scope.curFile.vExtension != 'pdf' ? finalUrl : '';
+            $scope.fileUrl = $scope.curFile.vExtension == 'pdf' ? finalUrl : '';
+
+            if ($scope.fileUrl.length > 0) {
+                $('#file').show();
+            } else {
+                $('#file').hide();
+            }
+        }, true);
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+
+    app.controller('fileViewerV2Controller', ['$scope', '$modalInstance', 'utilFactory', 'params', function ($scope, $modalInstance, utilFactory, params) {
+        $scope.params = params;
+
+        $scope.curFile = $scope.params.file;
+        $scope.pathURL = $scope.params.url;
+        $scope.files = $scope.params.files;
+        $scope.params.concatUrl = typeof $scope.params.concatUrl === 'undefined' ? true : false;
+
+        var finalUrl = '';
+
+        $scope.ok = function () {
+            $modalInstance.dismiss();
+        }
+
+        $scope.prevFile = function () {
+            var fileCount = $scope.files.length;
+            var curIndex = $scope.files.indexOf($scope.curFile);
+            var newIndex = curIndex == 0 ? fileCount - 1 : curIndex - 1;
+            $scope.curFile = $scope.files[newIndex];
+        }
+
+        $scope.nextFile = function () {
+            var fileCount = $scope.files.length;
+            var curIndex = $scope.files.indexOf($scope.curFile);
+            var newIndex = (curIndex + 1) == fileCount ? 0 : curIndex + 1;
+            $scope.curFile = $scope.files[newIndex];
+        }
+
+        $scope.$watch("curFile", function (newValue, oldValue) {
+            finalUrl = $scope.params.concatUrl ? $scope.pathURL + $scope.curFile.nIdeAdjunto : $scope.pathURL;
+            $scope.imageUrl = $scope.curFile.vExtension != 'pdf' ? finalUrl : '';
+            $scope.fileUrl = $scope.curFile.vExtension == 'pdf' ? finalUrl : '';
+            if ($scope.fileUrl.length > 0) {
+                $('#file').show();
+            } else {
+                $('#file').hide();
+            }
+        }, true);
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+
+    app.controller('fileAttachController', ['$scope', '$http', '$modalInstance', '$timeout', 'constants', 'utilService', 'adjuntoParams', 'commonService', 'fileTypeAccept', 'maxFileSize', 'utilFactory', function ($scope, $http, $modalInstance, $timeout, constants, utilService, adjuntoParams, commonService, fileTypeAccept, maxFileSize, utilFactory) {
+        $scope.adjuntoParams = adjuntoParams;
+        $scope.tipoAdjuntos = [];
+        $scope.attachedFile = {};
+        $scope.archivoAdjunto = '';
+        $scope.fileTypeAccept = fileTypeAccept.length == 0 ? constants.FILE_TYPE.UPLOAD : fileTypeAccept;
+        $scope.maxFileSize = maxFileSize;
+        $scope.showButtonAceptar = adjuntoParams.showButtonAceptar;
+        $scope.showButtonRegistrar = adjuntoParams.showButtonRegistrar;
+        $scope.allowAmount = adjuntoParams.allowAmount ? adjuntoParams.allowAmount : false;
+        $scope.showTipoArchivo = typeof adjuntoParams.showTipoArchivo === 'undefined' ? true : adjuntoParams.showTipoArchivo;
+        $scope.maxLengthDescr = adjuntoParams.maxLengthDescr || 255;
+
+        $scope.maxLengthDescr = 255;
+        if (!angular.isUndefined(adjuntoParams.maxLengthDescr)) {
+            $scope.maxLengthDescr = adjuntoParams.maxLengthDescr;
+        }
+
+        commonService.getCompendioGrupo(adjuntoParams.nIdeCompendio, constants.REST_OPTIONS.NOMBRE_CORTO).success(function (data) {
+            $scope.tipoAdjuntos = data;
+            if (adjuntoParams.notTipoAdjunto) {
+                _.forEach($scope.tipoAdjuntos, function (row) {
+                    if (_.some(adjuntoParams.notTipoAdjunto, function (nIdeTipoAdj) {
+                            return nIdeTipoAdj == row.id
+                        })) {
+                        $scope.tipoAdjuntos = _.without($scope.tipoAdjuntos, row);
+                    }
+                });
+            }
+        });
+
+        $scope.registrar = function () {
+            if (!validate()) {
+                return;
+            }
+
+            var modalInstance = utilService.confirmModal(constants.MSG.REGISTER_CONFIRM_MESSAGE);
+            modalInstance.result.then(function () {
+                var sendData = new FormData();
+                sendData.append('archivoAdjunto', $scope.attachedFile.file);
+
+                if ($scope.adjuntoParams.showDescriptionField) {
+                    sendData.append('vDescr', $scope.attachedFile.vDescr);
+                }
+
+                sendData.append('nIdeTipoAdj', $scope.attachedFile.nIdeAdjunto);
+                _.forEach(adjuntoParams.data, function (data) {
+                    sendData.append(data.key, data.value);
+                });
+
+                utilFactory.ajaxLoader();
+                commonService.uploadField(adjuntoParams.url, sendData).success(function (data) {
+                    if (data.codigo === constants.CODIGO_MENSAJE_JSON.VALIDACION_NOT_OK) {
+                        utilService.informationModal(data.mensaje);
+                        return;
+                    }
+                    if (data.result) {
+                        $modalInstance.close(data.result);
+                    } else {
+                        $modalInstance.close(data);
+                    }
+                });
+            });
+        };
+
+        $scope.aceptar = function () {
+            if (!validate()) {
+                return;
+            }
+            if ($scope.allowAmount) {
+                $scope.attachedFile.nMonto = $scope.nMonto;
+            }
+            $modalInstance.close($scope.attachedFile);
+        };
+
+        $scope.fileChange = function (elm) {
+            if (elm.files.length > 0) {
+                var fileExt = elm.files[0].name.split('.').pop().toLowerCase();
+                var fileSize = elm.files[0].size;
+                var acceptExt = false;
+                for (var i = 0; i < $scope.fileTypeAccept.length; i++) {
+                    if ('.' + fileExt == $scope.fileTypeAccept[i]) {
+                        acceptExt = true;
+                        break;
+                    }
+                }
+                if (!acceptExt) {
+                    $scope.fileSelected = null;
+                    $scope.$apply();
+                    utilService.warningModal('Por favor; asegúrate de seleccionar un archivo válido');
+                    return;
+                }
+                if (fileSize > $scope.maxFileSize) {
+                    $scope.fileSelected = null;
+                    $scope.$apply();
+                    utilService.warningModal('Por favor; asegúrate de seleccionar un archivo con un tamaño menor o igual a ' + utilFactory.convertByteToMb($scope.maxFileSize) + ' Mb');
+                    return;
+                }
+                $scope.attachedFile.extension = fileExt;
+                $scope.attachedFile.file = elm.files[0];
+                $scope.$apply();
+            }
+        };
+
+        $scope.attachFile = function (event) {
+            event.preventDefault();
+            $timeout(function () {
+                angular.element('#commonAttachFile').val('');
+                angular.element('#commonAttachFile').click();
+            });
+        };
+
+        $scope.removeFile = function () {
+            $scope.attachedFile = {};
+            $scope.archivoAdjunto = '';
+        };
+
+        function validate() {
+            var valRul = {
+                rules: {
+                    'attachedFile.vDescr': {
+                        withName: 'Descripci\u00F3n',
+                        required: $scope.adjuntoParams.showDescriptionField
+                    },
+                    'attachedFile.nIdeAdjunto': {
+                        withName: 'Tipo Adjunto',
+                        required: $scope.showTipoArchivo
+                    },
+                    nMonto: {
+                        withName: 'Monto',
+                        required: $scope.attachedFile.nIdeAdjunto == constants.TIPO_ADJUNTO.VOUCHER && $scope.allowAmount
+                    },
+                    attachedFile: {
+                        withName: 'Archivo',
+                        required: true,
+                        value: $scope.attachedFile.file ? $scope.attachedFile.file.name : ''
+                    }
+
+                }
+            };
+            var valRes = utilFactory.validate(valRul);
+            if (!valRes.isValid) {
+                utilService.warningModal(valRes.errors, constants.MSG.VALIDATION_TITLE);
+            }
+            return valRes.isValid;
+        }
+
+        $modalInstance.opened.then(function () {
+            $timeout(function () {
+                utilFactory.focus('attachedFile.vDescr');
+            }, 20);
+        });
+
+        $scope.cerrar = function () {
+            $modalInstance.dismiss();
+        };
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        };
+    }]);
+
+    app.controller('trazabilidadController', ['$scope', function ($scope) {
+
+    }]);
+
+    app.controller('adjuntoGfaController', ['$scope', '$modal', 'utilFactory', 'commonFactory', function ($scope, $modal, utilFactory, commonFactory) {
+        $scope.solicitudCompra = $scope.$parent.detailRow;
+
+        var actionTemplate = '<div class="ui-grid-cell-contents"><a ng-click="grid.appScope.fileViewer(row.entity)"  tooltip-append-to-body="true" tooltip="Vizualizar" tooltip-placement="bottom"><img ng-src="/e/images/fileicons/{{row.entity.vExtension}}.png"/></a></div>';
+
+        //Grid columns
+        var columns = [
+            {
+                name: 'numeration',
+                displayName: '#',
+                width: 50,
+                cellClass: 'ta-center',
+                enableColumnMenu: false,
+                headerCellClass: 'ta-right',
+                cellTemplate: commonFactory.numerationCellTemplate()
+            },
+            {name: 'tipoAdjunto', displayName: 'Tipo de Archivo', width: 200},
+            {name: 'vNombre', displayName: 'Nombre del Archivo', minWidth: 270},
+            {name: 'dtFecReg', displayName: 'Fecha de Registro', width: 125},
+            {
+                name: 'actions',
+                displayName: 'Acci\u00F3n',
+                width: 70,
+                cellClass: 'ta-center',
+                pinnedRight: true,
+                enableColumnMenu: false,
+                cellTemplate: actionTemplate
+            }
+        ];
+
+        //Adjunto
+        $scope.gridAdjunto = {
+            columnDefs: columns,
+            data: []
+        }
+        $scope.gridAdjuntoHeight = function () {
+            var rowHeight = 30; // your row height
+            var headerHeight = 30; // your header height
+            return {
+                height: (($scope.gridAdjunto.data.length * rowHeight + headerHeight) + 19) + "px"
+            };
+        };
+
+        $scope.fileViewer = function (row) {
+            var modalSize = row.vExtension == 'pdf' ? 'lg' : '';
+            $modal.open({
+                templateUrl: '/e/views/common/fileViewer.html',
+                controller: 'fileViewerV2Controller',
+                size: modalSize,
+                resolve: {
+                    params: function () {
+                        return {
+                            url: utilFactory.getBasePath() + 'interno/commonAdjunto/downloadAdjuntoPaso/',
+                            file: row,
+                            files: $scope.gridAdjunto.data
+                        };
+                    }
+                }
+            });
+        }
+    }]);
+
+    app.controller('loginWebController', ['$scope', '$modal', '$q', '$timeout', 'utilFactory', 'utilService', 'constants', function ($scope, $modal, $q, $timeout, utilFactory, utilService, constants) {
+        $scope.verVideo = function () {
+            var shareData = {};
+            shareData.videoUrl = 'https://www.youtube.com/embed/uB9rYShXjxQ';
+            $modal.open({
+                templateUrl: '/e/views/common/videoViewer.html',
+                controller: 'videoViewerController',
+                size: 'lg',
+                resolve: {
+                    shareData: function () {
+                        return shareData;
+                    }
+                }
+            });
+        }
+
+        $scope.verVideo2 = function () {
+            var shareData = {};
+            shareData.videoUrl = 'https://www.youtube.com/embed/KKpj76kXxMU';
+            $modal.open({
+                templateUrl: '/e/views/common/videoViewer.html',
+                controller: 'videoViewerController',
+                size: 'lg',
+                resolve: {
+                    shareData: function () {
+                        return shareData;
+                    }
+                }
+            });
+        }
+    }]);
+
+    app.controller('videoViewerController', ['$scope', '$sce', '$modalInstance', 'params', function ($scope, $sce, $modalInstance, params) {
+        var vm = this;
+        vm.params = params;
+        vm.params.modalTitle = vm.params.modalTitle || 'Video en Línea';
+        vm.url = params.url;
+
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+
+    app.controller('commonController', ['$scope', '$modalInstance', 'params', function ($scope, $modalInstance, params) {
+        var vm = this;
+        vm.params = params;
+        vm.row = params.row;
+        $scope.params = params;
+        $scope.row = params.row;
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+
+        if (params.modalInstanceParent) {
+            params.modalInstanceParent.dismiss();
+        }
+    }]);
+
+    app.controller('treeViewerController', ['$scope', '$modal', '$modalInstance', '$q', 'utilFactory', 'utilService', 'constants', 'commonService', 'areaFactory', 'params', function ($scope, $modal, $modalInstance, $q, utilFactory, utilService, constants, commonService, areaFactory, params) {
+        $scope.params = params;
+        utilFactory.ajaxLoader();
+        var sendData = {
+            nIdeRegion: params.nIdeRegion
+        };
+        commonService.getTreeArea(sendData).success(function (data) {
+            $scope.originalAreaList = data;
+
+            $scope.areaList = [];
+            formatData(null, null, $scope.areaList);
+        });
+
+        $scope.selectNode = function (node) {
+            $modalInstance.close(node);
+        }
+
+        $scope.$watch('area.currentNode', function (newObj, oldObj) {
+            if ($scope.area && angular.isObject($scope.area.currentNode)) {
+                //console.log( $scope.area.currentNode );
+                if ($scope.area.currentNode.children.length == 0 && $scope.area.currentNode.nIdeCategoria == 4) {
+                    utilFactory.ajaxLoader();
+                    commonService.getTreeArea($scope.area.currentNode.nIdeRegion).success(function (data) {
+                        //Eliminar
+                        data = areaFactory.searchTreeData($scope.area.currentNode.nIdeRegion);
+
+                        $scope.area.currentNode.children = data;
+                    });
+                }
+            }
+        }, false);
+
+        var counter = 0;
+
+        function formatData(nIdePadre, parentRow, result) {
+            counter += 1;
+            var filterData = _.filter($scope.originalAreaList, 'nIdePadre', nIdePadre);
+
+            for (var index in filterData) {
+                var row = filterData[index];
+                row.collapsed = true;
+                if (!row.children) {
+                    row.children = [];
+                }
+
+                if (nIdePadre == null) {
+                    result.push(row);
+                } else {
+                    // if(!parentRow.children){
+                    //     parentRow.children = [];
+                    // }
+                    parentRow.children.push(row);
+                }
+                formatData(row.nIdeDep, row, result);
+            }
+        }
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+
+    app.controller('treeViewerV2Controller', ['$scope', '$modal', '$modalInstance', '$q', 'utilFactory', 'utilService', 'constants', 'commonService', 'params', function ($scope, $modal, $modalInstance, $q, utilFactory, utilService, constants, commonService, params) {
+        $scope.params = params;
+        // utilFactory.ajaxLoader();
+        // commonService.getTreeArea().success(function(data){
+        $scope.originalList = angular.copy($scope.params.lista);
+
+        $scope.list = [];
+        formatData(null, null, $scope.list);
+        // });
+
+        $scope.selectNode = function (node) {
+            if (node.nSeleccionable && node.nSeleccionable === constants.VALOR_YES_NO.YES) {
+                $modalInstance.close(node);
+            }
+        }
+
+        // $scope.$watch( 'area.currentNode', function( newObj, oldObj ) {
+        //     if( $scope.area && angular.isObject($scope.area.currentNode) ) {
+        //         //console.log( $scope.area.currentNode );
+        //         if($scope.area.currentNode.children.length == 0 && $scope.area.currentNode.nIdeCategoria == 4){
+        //             utilFactory.ajaxLoader();
+        //             commonService.getTreeArea($scope.area.currentNode.nIdeRegion).success(function(data){
+        //                 //Eliminar
+        //                 data = areaFactory.searchTreeData($scope.area.currentNode.nIdeRegion);
+        //
+        //                 $scope.area.currentNode.children = data;
+        //             });
+        //         }
+        //     }
+        // }, false);
+
+        var counter = 0;
+
+        function formatData(idPadre, parentRow, result) {
+            console.log("formatData")
+            counter += 1;
+            var filterData;
+
+            //TodoFix : El servidor convierte a zero los nulos
+            if (idPadre == null) {
+                filterData = _.filter($scope.originalList, 'idPadre', idPadre);
+                if (filterData.length == 0) {
+                    filterData = _.filter($scope.originalList, 'idPadre', 0);
+                }
+            } else {
+                filterData = _.filter($scope.originalList, 'idPadre', idPadre);
+            }
+
+            for (var index in filterData) {
+                var row = filterData[index];
+
+                row.collapsed = true;
+                if (!row.children) {
+                    row.children = [];
+                }
+
+                if (idPadre == null) {
+                    result.push(row);
+                } else {
+                    // if(!parentRow.children){
+                    //     parentRow.children = [];
+                    // }
+                    parentRow.children.push(row);
+                }
+                formatData(row.id, row, result);
+            }
+        }
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+
+    app.controller('treeViewerCentroCostoController', ['$scope', '$modal', '$modalInstance', '$q', 'utilFactory', 'utilService', 'constants', 'commonService', 'params', function ($scope, $modal, $modalInstance, $q, utilFactory, utilService, constants, commonService, params) {
+        $scope.params = params;
+        // utilFactory.ajaxLoader();
+        // commonService.getTreeArea().success(function(data){
+        $scope.originalList = angular.copy($scope.params.lista);
+
+        $scope.list = [];
+        formatData(null, null, $scope.list);
+        // });
+
+        $scope.selectNode = function (node) {
+            if (node.nSeleccionable === constants.VALOR_YES_NO.YES) {
+                $modalInstance.close(node);
+            }
+        }
+
+        var counter = 0;
+
+        function formatData(idPadre, parentRow, result) {
+            // console.log("formatData")
+            counter += 1;
+            var filterData;
+
+            //TodoFix : El servidor convierte a zero los nulos
+            if (idPadre == null) {
+                filterData = _.filter($scope.originalList, 'idPadre', idPadre);
+                if (filterData.length == 0) {
+                    filterData = _.filter($scope.originalList, 'idPadre', 0);
+                }
+            } else {
+                filterData = _.filter($scope.originalList, 'idPadre', idPadre);
+            }
+
+            for (var index in filterData) {
+                var row = filterData[index];
+
+                row.collapsed = true;
+                if (!row.children) {
+                    row.children = [];
+                }
+
+                if (idPadre == null) {
+                    result.push(row);
+                } else {
+                    // if(!parentRow.children){
+                    //     parentRow.children = [];
+                    // }
+                    parentRow.children.push(row);
+                }
+                formatData(row.id2, row, result);
+            }
+        }
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+
+    app.controller('listadoAsignacionController', ['$scope', '$modalInstance', 'utilService', 'params', function ($scope, $modalInstance, utilService, params) {
+        $scope.params = params;
+
+        $scope.seleccionar = function (event, asignacion) {
+            event.preventDefault();
+            $modalInstance.close(asignacion);
+        }
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+}());

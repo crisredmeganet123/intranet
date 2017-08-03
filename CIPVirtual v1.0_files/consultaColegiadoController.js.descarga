@@ -1,0 +1,205 @@
+(function () {
+
+    var app = angular.module('sice');
+
+    app.controller('consultaColegiadoController', ['$scope', '$filter', '$modal', '$timeout', 'utilFactory', 'utilService', 'constants', 'commonService', 'appConfig', 'commonFactory', 'consultaColegiadoFactory', 'consultaColegiadoService', function ($scope, $filter, $modal, $timeout, utilFactory, utilService, constants, commonService, appConfig, commonFactory, consultaColegiadoFactory, consultaColegiadoService) {
+        $scope.filter = {};
+        $scope.listaTiposBusqueda = consultaColegiadoFactory.listaTiposBusqueda();
+        $scope.listaTipoCol = consultaColegiadoFactory.listaTipoCol();
+        $scope.isSearched = false;
+        $scope.filter.nIdeTipoBusqueda = 1;
+        $scope.filter.nIdeTipoDoc = constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.NUMERO_REGISTRO_CIP;
+        // $scope.filter.nIdeTipoColegiado = constants.COMPENDIO_DETALLE_TIPO_COLEGIADOS.ORDINARIO;
+        $scope.curCaptcha;
+        $scope.vNumDocPattern = utilFactory.regExpDigit();
+        $scope.vNumDocMaxlenght = 20;
+        $scope.imgCaptchaUrlBase = constants.BASE_PATH.COLEGIACION + '/externo/consultaCol/captcha.jpg';
+        $scope.imgCaptchaUrl = "" + $scope.imgCaptchaUrlBase;
+
+
+        /*------------------------------------*\
+         Load data
+         \*------------------------------------*/
+        commonService.getCompendioGrupo(constants.COMPENDIO_GRUPO_TIPO_DOCUMENTO.BUSQUEDA_PERSONA, constants.REST_OPTIONS.NOMBRE_CORTO).success(function (data) {
+            $scope.tiposDocumento = data;
+        });
+
+        commonService.getCompendioGrupo(constants.IDE_COMPENDIO_DETALLE.GRUPO_TIPO_COL_BUSQUEDA_EXTERNA, constants.REST_OPTIONS.NOMBRE_CORTO).success(function (data) {
+            $scope.tiposColegiado = data;
+        });
+
+        $scope.gridColegiados = {
+            columnDefs: consultaColegiadoFactory.getColBusqueda(),
+            data: [],
+        };
+
+        $scope.gridHeight = function () {
+            return {
+                height: (($scope.gridColegiados.data.length * appConfig.GRID_CONFIG.ROW_HEIGHT + appConfig.GRID_CONFIG.HEADER_HEIGHT) + appConfig.GRID_CONFIG.PLUS.WITHOUT_PAGINATION) + "px"
+            };
+        };
+
+        $scope.consultar = function (event) {
+            event.preventDefault();
+            utilFactory.ajaxLoader();
+            if (!validarConsultar()) {
+                return;
+            }
+
+            // $scope.filter.captcha = $("#g-recaptcha-response").val();
+            consultaColegiadoService.consultar($scope.filter).success(function (data) {
+                if (data.codigo == constants.CODIGO_MENSAJE_JSON.VALIDACION_NOT_OK) {
+                    utilService.informationModal(data.mensaje);
+                    return;
+                }
+                $scope.gridColegiados.data = data.result;
+                $scope.isSearched = true;
+                $scope.curCaptcha = $scope.filter.captcha;
+                $scope.imgCaptchaUrl = $scope.imgCaptchaUrlBase + '?_ts=' + new Date().getTime();
+                $scope.filter.captcha = '';
+            });
+        };
+
+        $scope.verDetalle = function (nIdePadronCol) {
+            utilFactory.ajaxLoader();
+            $modal.open({
+                templateUrl: 'ajax/detalle/' + nIdePadronCol + '?' + new Date().getTime(),
+                controller: 'consultaColegiadoDetalleController',
+                size: 'lg'
+            });
+        }
+        $scope.reloadCaptcha = function ($event) {
+            $event.preventDefault();
+            $scope.imgCaptchaUrl = $scope.imgCaptchaUrlBase + '?_ts=' + new Date().getTime();
+            $scope.filter.captcha = '';
+        }
+        /*------------------------------------*\
+         NG CHANGE
+         \*------------------------------------*/
+        $scope.onChangeTipoBusqueda = function () {
+            if ($scope.filter.nIdeTipoBusqueda == 1) {
+                utilFactory.focus('filter.vNumDoc');
+            }
+            if ($scope.filter.nIdeTipoBusqueda == 2) {
+                utilFactory.focus('filter.vPrimerApellido');
+            }
+
+            if ($scope.filter.nIdeTipoBusqueda == null) {
+                $scope.filter.dtFecIniReg = utilFactory.getCurDate();
+                $scope.filter.dtFecFinReg = utilFactory.getCurDate();
+            }
+        }
+
+        $scope.ngChangeTipoDocumento = function () {
+            //$scope.vNumDocPattern = '[^A-Za-zñÑáéíóúÁÉÍÓÚ\'1]';
+            $scope.filter.vNumDoc = '';
+            $scope.vNumDocMaxlenght = 20;
+            if ($scope.filter.nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.CAR_EXT) {
+                $scope.vNumDocPattern = utilFactory.regExpAlfnum();
+            } else {
+                $scope.vNumDocPattern = utilFactory.regExpDigit();
+            }
+
+            if ($scope.filter.nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.DNI) {
+                $scope.vNumDocMaxlenght = 8;
+            }
+            utilFactory.focus('filter.vNumDoc');
+        }
+
+        function validarConsultar() {
+            // var captcha = $("#g-recaptcha-response").val();
+            var msgFullName = validateFullName();
+            var valRul = {
+                rules: {
+                    'filter.nIdeTipoColegiado': {
+                        withName: 'Tipo de Colegiado',
+                        required: true,
+                    },
+                    'filter.nIdeTipoDoc': {
+                        withName: 'Tipo de Documento',
+                        required: $scope.filter.nIdeTipoBusqueda == 1,
+                    },
+                    'filter.vNumDoc': {
+                        withName: '&numero; de Documento',
+                        required: $scope.filter.nIdeTipoBusqueda == 1,
+                    },
+                    'vFullName': {
+                        withMessage: msgFullName,
+                        required: msgFullName.length > 0
+                    },
+                    'filter.captcha': {
+                        withName: 'Resultado de la Operaci&oacute;n',
+                        required: true,
+                    }
+                }
+            };
+
+            var valRes = utilFactory.validate(valRul);
+            if (!valRes.isValid) {
+                utilService.warningModal(valRes.errors, constants.MSG.VALIDATION_TITLE);
+            }
+
+            return valRes.isValid;
+        }
+
+        function validaCaptcha() {
+            var valid = true;
+            var captcha = $("#g-recaptcha-response").val();
+            if (utilFactory.isNullOrEmpty(captcha)) {
+                utilService.informationModal(utilFactory.formatRequiredField('reCaptcha'));
+                valid = false;
+            }
+            return valid;
+        }
+
+        function validateFullName(){
+            var msg = '';
+            if($scope.filter.nIdeTipoBusqueda == 2){
+                var v1 = $scope.filter.vPrimerApellido;
+                var v2 = $scope.filter.vSegundoApellido;
+                var v3 = $scope.filter.vNombres;
+                if(utilFactory.isNullOrEmpty(v1) && utilFactory.isNullOrEmpty(v2) && utilFactory.isNullOrEmpty(v3)){
+                    msg = 'Debe ingresar como mínimo dos campos de los apellidos y nombres';
+                }else{
+                    if(utilFactory.isNullOrEmpty(v1) && utilFactory.isNullOrEmpty(v2)){
+                        msg = 'Debe ingresar el apellido paterno o materno';
+                    }
+
+                    if(utilFactory.isNullOrEmpty(v1) && utilFactory.isNullOrEmpty(v3)){
+                        msg = 'Debe ingresar el apellido paterno o nombres';
+                    }
+
+                    if(utilFactory.isNullOrEmpty(v2) && utilFactory.isNullOrEmpty(v3)){
+                        msg = 'Debe ingresar el apellido materno o nombres';
+                    }
+                }
+            }
+
+            return msg;
+        }
+
+        $scope.addClass = function(){
+            $timeout(function(){
+                $('.tooltip, .tooltip-arrow').addClass('captcha');
+            }, 50)
+        }
+    }]);
+
+
+    app.controller('consultaColegiadoDetalleController', ['$scope', '$filter', 'utilFactory', 'utilService', 'constants', 'commonService', '$modalInstance', function ($scope, $filter, utilFactory, utilService, constants, commonService, $modalInstance) {
+        $scope.infoColegiado = {};
+        $scope.initFormacion = function (data) {
+            $scope.infoColegiado = data;
+        }
+
+        $scope.init = function () {
+            $modalInstance.close();
+            utilService.informationModal(constants.MSG.CAPTCHA_SESION_FINISH);
+        }
+
+        $scope.close = function () {
+            $modalInstance.dismiss();
+        }
+    }]);
+
+}());

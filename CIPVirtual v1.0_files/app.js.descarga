@@ -1,0 +1,23 @@
+(function () {
+    var app = angular.module('sice', [
+        'ui.bootstrap',
+        'oc.lazyLoad',
+        'ui.grid',
+        'ui.grid.pinning',
+        'ui.grid.autoResize',
+        'ui.grid.selection',
+        'ui.grid.edit',
+        'ui.grid.cellNav',
+        'angular.filter',
+        'angularTreeview',
+        'ui.grid.pagination',
+        'ngLocale',
+        'nya.bootstrap.select',
+        'mwl.calendar',
+    ]);
+
+    app.run(['$rootScope', 'constants', function ($rootScope, constants) {
+        $rootScope.constants = constants;
+    }]);
+
+}());

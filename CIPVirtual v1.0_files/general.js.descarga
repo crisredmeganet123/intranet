@@ -1,0 +1,245 @@
+$(window).on('load', function(){
+	$('#main-content').css('visibility', 'visible');
+	$('[autofocus]').focus();
+});
+
+$(document).ready(function(){
+	$('body').on('keypress', 'input.phone-number', function(e){
+		var code = util.getKeyCode(e);
+		var char = String.fromCharCode(code);
+		var carPer = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789*-#+ ";
+		if(carPer.indexOf(char) === -1){
+			e.preventDefault();
+		}
+	});
+
+	$('body').on('keypress', 'input.document-number', function(e){
+		var char = String.fromCharCode(e.keyCode);
+		var carPer = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ0123456789-";
+		if(carPer.indexOf(char) === -1){
+			e.preventDefault();
+		}
+	});
+	
+	$('body').on('keypress', 'input.celular', function (e) {
+		var char = String.fromCharCode(e.keyCode);
+		var carPer = "#*0123456789 ";
+		if(carPer.indexOf(char) === -1){
+			e.preventDefault();
+		}
+	});
+	
+	//Configuracion del calendario
+	$.datepicker.regional['es'] = {
+        defaultDate: new Date(),
+        numberOfMonths: 1,
+        closeText: 'Cerrar',
+        prevText: '&#x3c;Ant',
+        nextText: 'Sig&#x3e;',
+        currentText: 'Hoy',
+        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        monthNamesShort: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        dayNames: ['Domingo', 'Lunes', 'Martes', 'Mi&eacute;rcoles', 'Jueves', 'Viernes', 'S&aacute;bado'],
+        dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mi&eacute;', 'Juv', 'Vie', 'S&aacute;b'],
+        dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'S&aacute;'],
+        weekHeader: 'Sm',
+        dateFormat: 'dd/mm/yy',
+        firstDay: 1,
+        changeFirstDay: true,
+        isRTL: false,
+        yearSuffix: '',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '-100:-0'
+    };
+
+    $.datepicker.setDefaults($.datepicker.regional['es']);
+    
+    $('.datepicker').datepicker();
+
+    $('[data-toggle="tooltip"]').tooltip({
+        container: 'body'
+    });
+
+	/*Applicacion*/
+	$('#apps-icon').on('click', function(e){
+		e.stopPropagation();
+		$('#apps #list').toggle('slow');
+	});
+
+	$('body').on('click', '.searcher-input-wrap', function (e) {
+		$(this).siblings('.searcher-content').toggle();
+		e.stopPropagation();
+	});
+
+	$('body').on('click', '.searcher-content', function (e) {
+		e.stopPropagation();
+	});
+
+	$('body').on('click', function(e){
+		$('#apps #list').hide();
+		$('.searcher-content').hide();
+	});
+
+	var icons = {header: "ui-icon-circle-arrow-e", activeHeader: "ui-icon-circle-arrow-s"};
+	$(".ui-accordion-cip").accordion({icons: icons, active: 0});
+});
+
+function startDatepicker(){
+	$('.datepicker, .date-picker').datepicker();
+}
+
+var util = {};
+util.errorModal = function(message){
+	var template = $('\
+		<div class="modal fade">\
+			  <div class="modal-dialog  modal-sm">\
+				<div class="modal-content">\
+				  <div class="modal-header modal-header-error">\
+				  	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+				  	<h4 class="modal-title">Error</h4>\
+				  </div>\
+				  <div class="modal-body">' + 
+				    message + 
+				  '</div>\
+				  <div class="modal-footer">\
+				  	<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>\
+				  </div>\
+				</div>\
+			  </div>\
+		</div>\
+	');
+	template.modal('show');
+	
+	template.on('hidden.bs.modal', function(){
+		//$(this).data('bs.modal', null);
+		$(this).remove();
+	});
+	
+	template.on('shown.bs.modal', function(){
+		template.find('button').focus();
+	});
+};
+
+util.confirmModal = function(message, fun){
+    var template = $('\
+		<div class="modal fade">\
+			  <div class="modal-dialog modal-sm">\
+				<div class="modal-content">\
+				  <div class="modal-header modal-header-info">\
+				  	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+				  	<h4 class="modal-title">INFORMACIÓN DEL SISTEMA</h4>\
+				  </div>\
+				  <div class="modal-body">' +
+    message +
+    '</div>\
+    <div class="modal-footer">\
+      <button type="button" class="btn btn-primary accept-btn">Si</button>\
+        <button type="button" class="btn btn-warning" data-dismiss="modal">No</button>\
+    </div>\
+  </div>\
+</div>\
+</div>\
+');
+    template.modal('show');
+
+    template.find('.accept-btn').on('click', function(){
+        fun();
+        template.modal('hide');
+    });
+
+    template.on('hidden.bs.modal', function(){
+        $(this).remove();
+    });
+
+    template.on('shown.bs.modal', function(){
+        template.find('.accept-btn').focus();
+    });
+};
+
+util.informationModal = function(message, title){
+    var title = typeof title !== 'undefined' ? title : 'Informaci&oacute;n';
+    var template = $('\
+		<div class="modal fade">\
+			  <div class="modal-dialog modal-sm">\
+				<div class="modal-content">\
+				  <div class="modal-header modal-header-info">\
+				  	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+				  	<h4 class="modal-title">' + title + '</h4>\
+				  </div>\
+				  <div class="modal-body">' +
+                message +
+                '</div>\
+                <div class="modal-footer">\
+                  <button type="button" class="btn btn-primary accept-btn">Aceptar</button>\
+                </div>\
+              </div>\
+            </div>\
+            </div>\
+            ');
+    template.modal('show');
+
+    template.find('.accept-btn').on('click', function(){
+        template.modal('hide');
+    });
+
+    template.on('hidden.bs.modal', function(){
+        $(this).remove();
+    });
+
+    template.on('shown.bs.modal', function(){
+        template.find('.accept-btn').focus();
+    });
+};
+
+util.warningModal = function (message, title) {
+	var title = typeof title !== 'undefined' ? title : 'Informaci&oacute;n';
+	var template = $('\
+		<div class="modal fade">\
+			  <div class="modal-dialog modal-sm">\
+				<div class="modal-content">\
+				  <div class="modal-header modal-header-warning">\
+				  	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+				  	<h4 class="modal-title">' + title + '</h4>\
+				  </div>\
+				  <div class="modal-body">' +
+		message +
+		'</div>\
+        <div class="modal-footer">\
+          <button type="button" class="btn btn-primary accept-btn">Aceptar</button>\
+        </div>\
+      </div>\
+    </div>\
+    </div>\
+    ');
+	template.modal('show');
+
+	template.find('.accept-btn').on('click', function () {
+		template.modal('hide');
+	});
+
+	template.on('hidden.bs.modal', function () {
+		$(this).remove();
+	});
+
+	template.on('shown.bs.modal', function () {
+		template.find('.accept-btn').focus();
+	});
+};
+
+util.isValidEmail = function(value){
+	var regExpEmail = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+	return regExpEmail.test(value);
+}
+
+util.getKeyCode = function(e){
+	return e.keyCode ? e.keyCode : e.which;
+}
+
+util.isControlKey = function(code){
+	return code == 8 || code == 9 || code == 13 || code == 37 || code == 39 || code == 46;
+}
+
+util.isConflictChar = function(char){
+	return char == "'" || char == "." || char == "%";
+}

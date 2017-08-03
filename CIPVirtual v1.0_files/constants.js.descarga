@@ -1,0 +1,941 @@
+(function () {
+    var app = angular.module('sice');
+
+    app.constant('constants', (function () {
+        var basePath = '/' + window.location.pathname.split('/')[1] + '/';
+
+        return {
+            BASE_PATH: {
+                COLEGIACION: '/sicecolegiacionweb',
+                CATALOGOS: '/sicecatalogosweb',
+                CATALOGOS_WS: '/sicecatalogosws',
+                SEGURIDAD: '/',
+                COMPRAS: '/sicecomprasweb',
+                GESTOR_FLUJO: '/sicegestorflujosweb',
+                EVENTOS: '/siceeventosweb',
+                BOLSA_TRABAJO: '/sicebolsatrabajoweb',
+                ISS: '/siceissweb',
+                PRESUPUESTO: '/sicepresupuestoweb',
+                ALMACEN: '/sicealmacenweb',
+                ALQUILER: '/sicealquilerweb',
+                PAGOS: '/sicepagosweb',
+                CAJA_BANCO: '/sicecajabancoweb',
+                RRHH: '/sicerrhhweb',
+            },
+            FILE_SIZES: {
+                TWO_MB: 2097152,
+                ONE_MB: 1048576,
+                FIVE_MB: 5242880,
+            },
+            'FILE_TYPE': {
+                'UPLOAD': ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt', '.png', '.jpg', '.jpeg', '.tif'],
+                'ACCEPT_VIEWER': ['pdf', 'png', 'jpg', 'jpeg'],
+            },
+            'MSG': {
+                VALIDATION_TITLE: 'INFORMACIÓN DEL SISTEMA',
+                QUESTION_TITLE: 'Ayuda del Sistema',
+                DELETE_CONFIRM_MESSAGE: '¿Por favor, está seguro de eliminar el registro?',
+                ANULAR_CONFIRM_MESSAGE: '¿Por favor, está seguro que desea anular el registro?',
+                DUPLICAR_CONFIRM_MESSAGE: '¿Por favor, está seguro de copiar y eliminar el registro?',
+                DELETE_CONFIRM_MESSAGE2: 'Se ejecutó la transacción satisfactoriamente',
+                REGISTER_CONFIRM_MESSAGE: '¿Por favor, está seguro de agregar el registro?',
+                UPDATE_CONFIRM_MESSAGE: '¿Por favor, está seguro de actualizar el registro?',
+                UPDATE_CONFIRM_MESSAGE2: 'El registro se actualizó satisfactoriamente.',
+                TRA_REGISTER_MESSAGE: 'Se ejecutó la transacción satisfactoriamente.',
+                CONFIRM_CLOSE_WINDOW: 'Si cierra la ventana se perderan todos los datos ingresados. ¿Está seguro de cerrar la ventana?',
+                CONFIRM_ENVIO_PROVEEDOR: '¿Por favor, está seguro de enviar la solicitud de cotización al proveedor?',
+                CONFIRM_REENVIO_SOL: '¿Por favor, está seguro de reenviar la solicitud de cotización al proveedor?',
+                CONFIRM_ENVIO_OC_PROVEEDOR: '¿Por favor, está seguro de enviar la orden de compra al proveedor?',
+                CONFIRM_REENVIO_OC_PROVEEDOR: '¿Por favor, está seguro de reenviar la orden de compra al proveedor?',
+                CONSULTA_SIN_DATA: 'No se encontraron registros.',
+                GENERAL_CONFIRM_MESSAGE: '¿Por favor, está seguro de registrar la transacción?',
+                NOT_CHECKED_ROW: 'Por favor, seleccione un registro en la grilla',
+                CAPTCHA_INVALID: 'Ud. debe indicar que no es un robot',
+                CAPTCHA_SESION_FINISH: 'Por favor, la sesión del captcha a caducado vuelva a consultar',
+                CONFIRM_ENVIO_ALQ: '¿Por favor, está seguro de enviar la cotización al cliente?',
+            },
+            'REGISTER_CONFIRM_MESSAGE': '¿Está usted seguro de registrar la transacción?',
+            'TRA_REGISTER_MESSAGE': 'La transacción se registro con éxito',
+            'ENVIO_CORREO': 'El correo se envió con éxito',
+            'DELETE_CONFIRM_MESSAGE': '¿Está usted seguro de eliminar el registro?',
+            'NO_RESULT_MESSAGE': 'No hay registros para la consulta',
+            'REQUIRED_FAIL_MESSAGE': 'Por favor; ingrese todos los datos requeridos',
+            'MAX_LENGTH_DES': 5,
+            'MAX_LENGTH_DES_BANDEJA': 20,
+            ANIO_MAXIMO_PAGO_COLEGIADO: 20,
+            SERVICIOS_REST: {
+                BASE_PATH: basePath + 'externo/utilrestcontroller/',
+                COMPENDIO: basePath + 'externo/utilrestcontroller/formaCboBoxSelectCompendio',
+                COMPENDIO_ORDENADO: basePath + 'externo/utilrestcontroller/formaCboBoxSelectCompendioOrdenado',
+                COMPENDIO_GRUPO: basePath + 'externo/utilrestcontroller/formaCboBoxSelectCompendioGrupo',
+                COMPENDIO_GRUPO_AVANZADO: basePath + 'externo/utilrestcontroller/listarCompendioGrupoAvanzado',
+                SEDE: basePath + 'externo/utilrestcontroller/getSedes',
+                AREA_POR_SEDE: basePath + 'externo/utilrestcontroller/listarAreaPorSede/',
+                LIST_AREA: basePath + 'externo/utilrestcontroller/listArea',
+                AREA_POR_CATEGORIA: basePath + 'externo/utilrestcontroller/listarAreaPorCategoria/',
+                LISTADO_TREE_AREA: basePath + 'externo/utilrestcontroller/listarTreeArea',
+                LISTADO_TREE_CENTRO_COSTO: basePath + 'externo/utilrestcontroller/listarTreeCentroCosto',
+                BUSCAR_COLEGIADO_POR_CIP: basePath + 'externo/utilrestcontroller/buscarColegiadoPorCip/',
+                REGIONES: basePath + 'externo/utilrestcontroller/getRegiones',
+                COMPENDIO_GRUPO_ROL: basePath + 'externo/utilrestcontroller/getCatalogoGrupoByRol',
+                AUTOCOMPLETE: basePath + 'externo/utilrestcontroller/catalogo/autocomplete',
+                AUTOCOMPLETES: {
+                    AREA: basePath + 'externo/utilrestcontroller/area/autocomplete',
+                    AREA_SEL: basePath + 'externo/utilrestcontroller/area/autocompleteSel',
+                    PERSONA: basePath + 'externo/utilrestcontroller/persona/autocomplete',
+                    PERSONA_POR_TIPO: basePath + 'externo/utilrestcontroller/persona/autocomplete/',
+                    CATALOGO: basePath + 'externo/utilrestcontroller/catalogo/autocomplete',//Estaba sin interno
+                    CATALOGO_TABLA: basePath + 'externo/utilrestcontroller/json/autocompleteTabla',
+                    CATALOGO_GRUPO: basePath + 'externo/utilrestcontroller/catalogo/autocompleteGrupo',
+                    ARTICULO: basePath + 'interno/common/ajax/autoCompleteArticulo/',
+                    ARTICULO_ALMACEN: basePath + 'interno/common/ajax/autoCompleteArticuloAlmacen/',
+                    ARTICULO_POR_AREA_Y_TIPO_ARTICULO: basePath + 'externo/utilrestcontroller/autocompleteArticuloPorAreaYTipoArticulo/',
+                    ARTICULO_POR_SEDE: basePath + 'externo/utilrestcontroller/autocompleteArticuloPorSede/',
+                    ARTICULO_POR_AREA: basePath + 'externo/utilrestcontroller/autocompleteArticuloPorArea',
+                    CENTRO_COSTO: basePath + 'externo/utilrestcontroller/autocompleteCentroCosto/',
+                    ALMACEN: {
+                        ARTICULO_POR_ALMACEN:  basePath + 'interno/almacenCommon/autocompleteArticulo'
+                    }
+                },
+                COMPENDIO_POR_ID: basePath + 'externo/utilrestcontroller/getCompendioPorId',
+                COMPENDIO_POR_IDS: basePath + 'externo/utilrestcontroller/listarCompendioPorIds',
+                LUGAR_POR_SEDE: basePath + 'externo/utilrestcontroller/listarLugarPorSede/',
+                MEDIO_CONTACTO_POR_PERSONA: basePath + 'externo/utilrestcontroller/listarPorPersona/',
+                AREA_POR_SEDE: basePath + 'externo/utilrestcontroller/listarAreasPorSede/',
+                SESSION_DATA: basePath + 'externo/utilrestcontroller/catalogo/getSessionData',
+                ESPECIALIDAD_POR_SEDE: basePath + 'externo/utilrestcontroller/listarEspecialidadPorSede/',
+                CAPITULO_POR_SEDE_Y_ESPECIALIDAD: basePath + 'externo/utilrestcontroller/obtenerCapituloPorSedeYEspecialidadId/',
+                CAPITULO_POR_SEDE: basePath + 'externo/utilrestcontroller/obtenerCapituloPorSede/',
+                ARTICULO_POR_AREA: basePath + 'externo/utilrestcontroller/listarArticuloPorArea',
+                ARTICULO_POR_AREA_PARA_EVENTO: basePath + 'externo/utilrestcontroller/listarArticuloPorAreaParaEvento',
+                ARTICULO_POR_AREA_Y_TIPO_ARTICULO: basePath + 'externo/utilrestcontroller/listarArticuloPorAreaYTipoArticulo/',
+                ARTICULO_POR_SEDE: basePath + 'externo/utilrestcontroller/listarArticuloPorSede',
+                EMISOR_POR_SEDE: basePath + 'externo/utilrestcontroller/listarEmisorPorSede',
+                CUENTA_BANCARIA_POR_PERSONA: basePath + 'externo/utilrestcontroller/listarCuentaBancariaPersona',
+                TIPO_CAMBIO: basePath + '/externo/tipoCambio/getVigente',
+            },
+            'IDE_COMPENDIO': {
+                ARTICULOS: 51,
+                UBIGEO_DPTO: 9,
+                ESTADO_CIVIL: 12,
+                MEDIO_CONTACTO: 13,
+                TIPO_VIA: 14,
+                TIPO_ZONA: 15,
+                ADJUNTO_PRECOL: 17,
+                PAIS: 6,
+                UNIVERSIDADES: 16,
+                ESPECIALIDADES: 18,
+                FORMA_OBTENCION_TITULO: 19,
+                GRUPO_PAIS_UNIVERSIDADES: 6, // Se cambio de 20 a 6
+                GRUPO_ESPECIALIDADES: 21,
+                TIPO_COLEGIACION: 5,
+                TIPO_ARCHIVO_ADJUNTO: 17,
+                UNIDAD_MEDIDA_ARTICULO: 22,
+                GRUPO_TIPO_CASO: 30,
+                GRUPO_ROL_CLASES_CASO: 31,
+                GRUPO_ARCHIVOS_ADJUNTOS: 34,
+                ROLES: 1,
+                TIPO_DOCUMENTO_IDENTIFICACION: 4,
+                SEXO_PERSONA: 8,
+                DEPARTAMENTO: 9,
+                TIPO_MEDIO_CONTACTO: 13,
+                TIPO_ESPECIALIDAD: 37,
+                CLASE_EVENTO: 44,
+                MODALIDAD_EVENTO: 46,
+                TIPO_PAGO: 47,
+                TIPO_MONEDA: 48,
+                TIPO_NUM_ESPECIALIDAD: 37,
+                TIPO_PERSONA: 35,
+                GRUPO_TIPO_DOCUMENTO_EXTRANJEROS: 4551,
+                FORMA_PAGO: 53,
+                DIAS_CREDITO: 58,
+                TIPO_CUENTA_BANCARIA: 61,
+                CAPITULOS: 21,
+                CATEGORIA_EVENTO: 62,
+                CONCEPTO_PAGO: 63,
+                TIPO_SOLICITUD_COMPRA: 64,
+                ESTADO_SOLICITUD: 29,
+                ESTADO_SOLICITUD_TRAMITE: 42,
+                CATEGORIA_AREA: 2,
+                AMBITO_AREA: 3,
+                ESTADO_SOL_ORDEN_COMPRA: 67,
+                MODALIDAD_COMPRA: 68,
+                TIPO_EVALUACION: 86,
+                TIPO_PROMEDIO: 87,
+                TIPO_MOVIMIENTO_STOCK: 74,
+                TIPO_DOCUMENTO_COMPROBANTE: 77,
+                ROL_ORGANO_DEONTOLOGICO: 79,
+                ROL_SECRETARIA_GENERAL_CN: 4719,
+                ROL_COLEGIACION_REGISTRO: 4717,
+                ROL_COLEGIADO: 2163,
+                ROL_PRECOLEGIADO: 4314,
+                ROL_COLEGIACION_4643: 4643,
+                ROL_COLEGIACION_5508: 5508,
+                ROL_COLEGIACION_5492: 5492,
+                CARGO_ORGANO_DEONTOLOGICO: 80,
+                FACE_PROCESO_SANCIONADOR: 81,
+                TIPO_EXPEDIENTE: 80,
+                FORMA_INICIO_PROCEDIMIENTO: 83,
+                CLASE_EXPEDIENTE: 4680,
+                CONDICION_EVENTO: 80,
+                TIPO_TRANSACCION: 89,
+                TIPO_DOCUMENTO_TRANSACCION: 92,
+                TIPO_CERTIFICADO: 93,
+                TIPO_LETRA: 94,
+                UBICACION_FIRMA: 95,
+                TIPO_RESOLUCION: 104,
+                TIPO_SANCION: 100,
+                RESUELVE_DECLARA: 105,
+                PERIODO_SANCION: 96,
+                GRAVEDAD_FALTA: 97,
+                CLASE_FALTA: 98,
+                TIPO_FALTA: 97,
+                TIPO_NOTIFICACION: 102,
+                TIPO_USUARIO: 40,
+                TIPO_COLEGIADO: 5,
+                MODALIDAD_CERTIFICADO_HABILIDAD: 109,
+                TIPO_CERTIFICADO_HABILIDAD: 120,
+                MODALIDAD_PAGO: 54,
+                SERIE_DOCUMENTO: 123,
+                TIPO_DE_COMPONENTES: 121,
+                TIPO_FORMATO_TEXTO: 122,
+                CARGOS: 59,
+                ESTADO_PARTICIPANTE_EVENTO: 85,
+                UBICACION_OPCION: 108,
+                TIPO_OPCION: 157,
+                MOTIVOS_CAMBIO_SEDE: 127,
+                ESTADIO_EXPEDIENTE: 103,
+                ESTADO_DOCUMENTO: 42,
+                TIPO_SANCION_TNE: 128,
+                ESTADOS_BTRPERSONA: 129,
+                TIPO_DE_CARGOS_LABORALES: 59,
+                DURACION_MESES_OFERTA_LABORAL: 131,
+                RANGO_SUELDO_MENSUAL_LABORAL: 132,
+                TIPO_OFERTA_LABORAL: 133,
+                TIPO_DESCRIPCION_OFERTA_LABORAL: 134,
+                TIPO_PERFIL_OFERTA_LABORAL: 137,
+                TIPO_IDIOMAS: 139,
+                TIPO_NIVEL_APRENDIZAJE: 140,
+                TIPO_OBSERVACIONES_EMPRESA: 141,
+                TIPO_EDUCACION: 142,
+                CAPITULO_ESTATUTO: 116,
+                FORMA_BENEFICIO: 145,
+                PARENTESCO_FAMILIA: 149,
+                NACIONALIDAD: 146,
+                TIPO_PARTICIPANTE_EVENTO: 147,
+                SUB_TIPO_IMPRESION: 148,
+                TIPO_CUENTA_COLEGIADO: 153,
+                BANCO: 56,
+                GRADO_ACADEMICO: 156,
+                IGV: 70,
+                TIPO_TRAMITE: 24,
+                TIPO_OBSERVACION_CONDICION_COMPRA: 159,
+                TIPO_OBSERVACION_COMPRA: 71,
+                MOTIVO_COCLUCION_EXPEDIENTE: 160,
+                TIPO_DICTAMEN: 161,
+                SEDE_COL_PAGO_REG: 5289,
+                ROL_SEDE_CALLAO: 5290,
+                ROL_SEDE_HUANUCO: 5482,
+                ROL_SEDE_TUMBES: 5486,
+                TIPO_CUENTA_PRESUPUESTO: 163,
+                MESES_ANIO: 136,
+                PERIODO_TRIMESTRAL: 164,
+                TIPO_ARTICULO: 72,
+                PERIODOS: 164,
+                TIPO_ASIGNACION_PRESUPUESTO: 165,
+                TIPO_MOV_PRESUPUESTO: 166,
+                FORMA_COMPRA: 168,
+                CD_COL_ISS_CSEDE: 4546,
+                TIPO_AMONESTACION: 169,
+                PORCENTAJE_DETRACCION: 171,
+                DIAS_CREDITO: 172,
+                TIEMPO_GARANTIA: 173,
+                PORCENTAJE_RETENCION: 174,
+                TIPO_RESERVA: 177,
+                TIPO_RESERVA: 177,
+                CLASE_COTIZACION_ALQUILER: 5343,
+                TIPO_EVENTO: 45,
+                DIAS_CREDITO: 181,
+                TIPO_CTA_CONTABLE: 182,
+                TIPO_AGRUPACION_ARTICULO: 73,
+                CTA_CONTABLE_TIPO: 179,
+                TIPO_AFECTACION_IGV: 183,
+                TIPO_AMBIENTE_ALQ: 187,
+                TIPO_CARACTERISTICA_AMBIENTE: 176,
+                TIPO_DE_SANGRE: 188,
+                GRUPO_SANGUINEO: 189,
+                TIPO_REGIMEN_PENSIONARIO: 190,
+                TIPO_AFP: 191,
+            },
+            UBIGEO: {
+                PAIS: {
+                    PERU: 16
+                }
+            },
+            PAIS_UNIVERSIDAD: {
+                PERU: 16,
+                OTROS: 4758
+            },
+            UNIVERSIDADES_DE_REVALIDACION: {
+                PERU: 3754
+            },
+            IDE_COMPENDIO_DETALLE: {
+                GRUPO_TIPO_CASO_COLEGIACION: 4333,
+                GRUPO_ARCHIVOS_ADJUNTOS_GENERALES: 4345,
+                GRUPO_ARCHIVOS_ADJUNTOS_BANDEJA: 4346,
+                GRUPO_ARCHIVOS_ADJUNTOS_SOL_CAMBIO_SEDE: 4803,
+                GRUPO_ARCHIVOS_ADJUNTOS_EVENTOS: 4520,
+                GRUPO_ARCHIVOS_ADJUNTOS_COMPRAS: 4710,
+                GRUPO_ARCHIVOS_ADJUNTOS_PAGOS_OC: 5393,
+                GRUPO_ARCHIVOS_ADJUNTOS_ALMACEN: 4520,
+                GRUPO_ARCHIVOS_ADJUNTOS_TRIBUNAL_ETICA: 4689,
+                GRUPO_TIPO_COLEGIADO_PARA_EMISION: 4806,
+                GRUPO_TIPO_ADJUNTO_NUEVA_ESPECIALIDAD: 4814,
+                GRUPO_TIPO_ADJUNTO_ACTUALIZACION_IMAGEN: 4831,
+                GRUPO_ARCHIVO_ACTUALIZACION_DATO: 2331,
+                GRUPO_ARCHIVO_ISS: 3286,
+                GRUPO_ARCHIVO_TRAMITE_DOCUMENTARIO: 3286,
+                GRUPO_ARCHIVO_DOCUMENTO_ADMINISTRATIVO: 5331,
+                SOLICITUD_CAMBIO_SEDE: 4465,
+                SOLICITUD_NUEVA_ESPECIALIDAD: 4466,
+                SOLICITUD_COLEGIACION_VIRTUAL: 4316,
+                SOLICITUD_COLEGIACION: 4809,
+                SOLICITUD_DE_RENOVACION_TEMPORAL: 4759,
+                SOLICITUD_COMPRA_ARTICULO: 4622,
+                SOLICITUD_COMPRA_SERVICIO: 4623,
+                PRIMERA_ESPECIALIDAD: 4369,
+                SEGUNDA_ESPECIALIDAD: 4458,
+                TERCERA_ESPECIALIDAD: 4459,
+                CUARTA_ESPECIALIDAD: 4460,
+                TIPO_CASO_SOLICITUD_DE_COLEGIACION_ORDINARIA: 4318,
+                TIPO_CASO_SOLICITUD_DE_COLEGIACION_TEMPORAL: 4332,
+                SOLICITUD_DE_CORREO_ELECTRONICO: 2245,
+                SOLICITUD_DE_ACTUALIZACION_DATO: 2327,
+                GRUPO_ARCHIVOS_ADJUNTOS_BOLSA_TRABAJO: 2437,
+                GRUPO_ARCHIVOS_ADJUNTOS_COLEGIADO_BOLSA_TRABAJO: 2445,
+                GRUPO_ARCHIVOS_ADJUNTOS_PARA_DNI: 3787,
+                GRUPO_ARCHIVOS_ADJUNTOS_PARA_CAR_EXT: 3788,
+                GRUPO_ARCHIVOS_ADJUNTOS_PARA_PASAPORTE: 3789,
+                SOLICITUD_DE_ASIGNACION_BENEFICIO_SOCIAL: 3161,
+                GRUPO_ARCHIVO_EXP_ELECTRONICO_ISS: 3869,
+                REQUERIMIENTO: 3813,
+                GRUPO_REGISTRO_RUBRO: 5339,
+                GRUPO_ADJUNTO_PRESU_MOVIENTOS: 5342,
+                GRUPO_TIPO_COL_BUSQUEDA_EXTERNA: 5349,
+                GRUPO_ADJUNTO_ALQUILER_ACEPTAR: 5351,
+                GRUPO_MODULOS_CIP_VIRTUAL: 5416,
+            },
+            'REST_OPTIONS': {
+                NOMBRE_CORTO: 1,
+                NOMBRE_LARGO: 2,
+                NOMBRE_CORTO_LARGO: 3
+            },
+            'URL': {
+                'VIEWS': {
+                    'ADJUNTAR_ARCHIVO_COMPRAS': '/sicecomprasweb/interno/common/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO_COLEGIACION': '/sicecolegiacionweb/common/ajax/adjuntar',
+                    'ADJUNTAR_ARCHIVO_EVENTOS': '/siceeventosweb/interno/common/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO_ALMACEN': '/sicealmacenweb/interno/common/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO_TRIBUNAL_ETICA': '/sicetneweb/interno/common/ajax/fileAttach',
+                    'BUSQUEDA_PERSONA': '/sicecatalogosweb/interno/common/ajax/busquedaPersona',
+                    'ADJUNTAR_ARCHIVO_BOLSA_TRABAJO': '/sicebolsatrabajoweb/interno/common/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO_ISS': '/siceissweb/interno/commonView/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO_TRAMITE_DOCUMENTARIO': '/sicetramitedocumentarioweb/interno/commonView/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO_PRESUPUESTO': '/sicepresupuestoweb/interno/commonView/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO_PAGOS': '/sicepagosweb/interno/commonView/ajax/fileAttach',
+                    'ADJUNTAR_ARCHIVO': '/e/views/common/fileAttach.html'
+                },
+                EXTERNO: {
+                    SUNAT: 'http://www.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias'
+                }
+            },
+            CODIGO_MENSAJE_JSON: {
+                ERROR_DEL_SISTEMA: '00010001',
+                VALIDACION_OK: '0100',
+                VALIDACION_NOT_OK: '0101',
+                BUSQUEDA_SIN_RESULTADOS: '0102',
+                VALIDACION_OK_WITH_WARNIG: '0103',
+            },
+            COMPENDIO_DETALLE_TIPO_BANDEJA: {
+                ENTRADA: 4326,
+                SALIDA: 4327,
+                COMISION: 4811,
+            },
+            COMPENDIO_DETALLE_TIPO_PERSONA: {
+                NATURAL: 4362,
+                JURIDICA: 4363
+            },
+            COMPENDIO_DETALLE_TIPO_DOCUMENTO: {
+                DNI: 8,
+                RUC: 9,
+                CAR_EXT: 10,
+                NUMERO_REGISTRO_CIP: 4612,
+                PASAPORTE: 4550
+            },
+            COMPENDIO_DETALLE_TIPO_MEDIO_CONTACTO: {
+                CASILLA_POSTAL: 4335,
+                CORREO_ELECTRONICO: 45,
+                FACEBOOK: 46,
+                NEXTEL: 41,
+                RPC: 43,
+                RPM: 42,
+                SKYPE: 44,
+                TELEFONO_CELULAR: 40,
+                TELEFONO_FIJO: 39,
+                TWITTER: 47
+            },
+            COMPENDIO_GRUPO_TIPO_DOCUMENTO: {
+                PERSONA_PERUANO: 4380,
+                PERSONA_EXTRANJERO: 4551,
+                PERSONA_EXTRANJERO_DOCUMENTO_PERUANO: 3811,
+                INSCRIPCION_WEB_EXTRANJERO: 5437,
+                INSCRIPCION_WEB_PERUANO: 4734,
+                BUSQUEDA_PERSONA: 4835,
+                BUSQUEDA_PRECOLEGIADO_PERUANO: 4933,
+                EMPRESA_PERUANA: 3782,
+                EMPRESA_EXTRANJERA: 3783,
+                BENEFICIARIO_PERUANO: 3786,
+            },
+            COMPENDIO_GRUPO_TIPO_CASO: {
+                TIPO_SOLICITUD_CAMBIO: 4464,
+                ACTUALIZACION_DATO: 2332,
+            },
+            GRUPO_SUB_TIPO_TRAMITE: {
+                SOLICITUD_CAMBIO_SEDE: 2387,
+                SOLICITUD_ACTUALIZACION_DATO: 2388,
+                SOLICITUD_ASIGNACION_BENEFICIO_SOCIAL: 3300,
+                SOLICITUD_ASIGNACION_BENEFICIO_SOCIAL_COLEGIADO: 3794,
+            },
+            COMPENDIO_DETALLE_TIPO_PAGO: {
+                GRATUITO: 4509,
+                PAGADO: 4508
+            },
+            COMPENDIO_DETALLE_FORMA_PAGO: {
+                CONTADO: 4580,
+                CREDITO: 4581
+            },
+            COMPENDIO_GRUPO_BANCO: {
+                CIP: 4593,
+                PERSONAS: 4592
+            },
+            COMPENDIO_DETALLE_MODALIDAD_PAGO: {
+                EFECTIVO: 4582,
+                TRANSFERENCIA: 4583,
+                CHEQUE: 4584,
+                DEPOSITO: 3790,
+                CREDITO: 3791,
+                CONTRAENTREGA: 3792
+            },
+            COMPENDIO_GRUPO_MODALIDAD_PAGO: {
+                CONTADO: 4586,
+                CREDITO: 4587
+            },
+            COMPENDIO_GRUPO_CARGO_PERSONA: {
+                CIP: 4599,
+                EXTERNO: 4600
+            },
+            COMPENDIO_DETALLE_TIPO_SOL_COMPRA: {
+                COMPRA_ARTICULO: 4615,
+                COMPRA_SERVICIO: 4616,
+                GASTO_FIJO: 4845,
+                GASTO_REPRESENTACION: 4846
+            },
+            COMPENDIO_GRUPO_ARTICULOS: {
+                ARTICULO_ALMACEN: 4617,
+                SERVICIO: 4618
+            },
+            COMPENDIO_GRUPO_CATEGORIA_AREA: {
+                REGION: 4,
+                AREA: 5,
+                TNE_REGION: 4668,
+                TNE_ORGANO: 4669
+            },
+            COMPENDIO_GRUPO_AMBITO_AREA: {
+                INTERNA: 6,
+                EXTERNA: 7
+            },
+            COMPENDIO_DETALLE_ESTADO_DOCUMENTO: {
+                REGISTRADA: 4628,
+                ENVIADA: 4629,
+                EN_BUENA_PRO: 4632,
+                EN_PROCESO: 4633,
+                CON_ORDEN_DE_COMPRA: 4647,
+                ANULADA: 4634,
+                FACTURADA: 4638,
+                CON_ERROR: 3738,
+                VALIDADA: 3494,
+                ENVIADA_A_CONSEJO_NACIONAL: 3769,
+                EN_ISS_CN: 3860,
+                DESEMBOLZADO: 3809,
+                CONCLUIDO: 2268,
+                ACEPTADA: 5350,
+            },
+
+            COMPENDIO_ESTADO_DEL_DOCUMENTO: {
+                REGISTRADA: 4628,
+                RECHAZADO: 4330,
+                DESPACHADO: 4331,
+                APROBADO: 4679,
+                COLEGIADO: 4394,
+                SOLICITADO: 4385,
+                RECHAZADO_CN: 4393,
+                RECHAZADO_CD: 4388,
+                CANCELADO: 4757,
+                EN_COMISION_EVALUACION: 4387,
+            },
+
+            COMPENDIO_GRUPO_ESTADO_DOCUMENTO: {
+                SOLICITUD_COLEGIACION: 4639,
+                ESTADO_DEL_FURC: 4901,
+                ESTADO_PRECOLEGIADO: 4932,
+                ESTADO_VOUCHER_ISS: 4724,
+                ESTADO_ORDEN_PAGO: 4842,
+                ESTADO_DOCUMENTO_COMERCIAL: 4813,
+                ESTADO_DOCUMENTO_COMERCIAL_VENTA: 5367,
+            },
+            COMPENDIO_DETALLE_TIPO_OBSERVACION: {
+                REGISTRO: 4640,
+                ENVIO_A_PROVEEDOR: 4641
+            },
+            TIPO_ADJUNTO_ORDEN_COMPRA: {
+                REGISTRO: 1,
+                ENVIO: 2
+            },
+            COMPENDIO_DETALLE_MODALIDAD_EVENTO: {
+                PRESENCIAL: 4505,
+                VIRTUAL: 4506,
+                PRESENCIAL_VIRTUAL: 4749
+            },
+            TIPO_BUSQUEDA_PERSONA: {
+                POR_NOMBRE_RAZON_SOCIAL: 1,
+                POR_NUMERO_DOC: 2,
+                POR_NUMERO_CIP: 3,
+            },
+            TIPO_BUSQUEDA_PERSONA_V2: {
+                POR_NOMBRE_RAZON_SOCIAL: 4,
+                POR_NUMERO_DOC: 3
+            },
+            COMPENDIO_DETALLE_TIPO_COLEGIADOS: {
+                ORDINARIO: 11,
+                TEMPORAL: 13,
+                VITALICIO: 12
+            },
+            COMPENDIO_DETALLE_TIPO_MOVIMIENTO_STOCK: {
+                ENTRADA: 4654,
+                SALIDA: 4655
+            },
+            COMPENDIO_GRUPO_CONCEPTO_MOVIMIENTO_STOCK: {
+                ENTRADA: 4659,
+                SALIDA: 4660
+            },
+            COMPENDIO_GRUPO_FACES_PROCESO_SANCIONADOR: {
+                CONSEJO_NACIONAL: 4694,
+                CONSEJO_DEPARTAMENTAL: 4693
+            },
+            COMPENDIO_DETALLE_TIPO_EXPEDIENTE: {
+                TDE: 4697,
+                TNE: 4698
+            },
+            AREA_DEPENDENCIA_TNE: {
+                NACIONAL: 52
+            },
+            COMPENDIO_DETALLE_TIPO_RESOLUCION: {
+                NO_AH_LUGAR: 4692,
+                SANCIONADORA: 4772,
+                NO_RATIFICA_SANCION: 3759
+            },
+            COMPENDIO_GRUPO_TIPO_FACES: {
+                NACIONAL: 3308,//4903,
+                DEPARTAMENTAL: 3304// 3304
+            },
+            COMPENDIO_GRUPO_FORMA_INICIO: {
+                NACIONAL: 3258,
+                DEPARTAMENTAL: 3259
+            },
+            COMPENDIO_DETALLE_TIPO_EVALUACION: {
+                POR_NOTA_APROBATORIA: 4714,
+                POR_NUMERO_ASISTENCIA: 4807,
+                POR_NOTA_ASISTENCIA: 4716,
+            },
+            APP_CONFIG: {
+                ALERT_TYPE: {
+                    INFO: 'info',
+                    WARNING: 'warning'
+                }
+            },
+            COMPENDIO_DETALLE_TIPO_PROMEDIO: {
+                PONDERADO: 4730,
+                ARITMETICO: 4731
+            },
+            CRUD_TYPE: {
+                CREATE: 1,
+                READ: 2,
+                UPDATE: 3,
+                DELETE: 4,
+                DETAIL: 5,
+                DUPLICATE: 6
+            },
+            ID_AREA: {
+                TRIBUNAL_NACIONAL: 51,
+                CALLAO: 18
+            },
+            COMPENDIO_DETALLE_CATEGORIA_PARTICIPANTE: {
+                INGENIERO_COLEGIADO: 4605
+            },
+            COMPENDIO_DETALLE_TIPO_TRANSACCION: {
+                INGRESO: 4736,
+                EGRESO: 4737
+            },
+            COMPENDIO_GRUPO_CONCEPTO_TRANSACCION: {
+                INGRESO: 4742,
+                EGRESO: 4743
+            },
+            DOWNLOAD_FILE_TYPE: {
+                PDF: 1,
+                EXCEL: 2
+            },
+            COMPENDIO_TIPO_RUTA: {
+                ARCHIVAR: 4342
+            },
+            EDAD_MINIMA: {
+                INSCRIPCION_EVENTO: 18,
+                REGISTRO_COLEGIADO: 20,
+                PARTICIPANTE_EVENTO: 15
+            },
+            TIPO_PARTICIPANTE_EVENTO: {
+                PRE_INSCRITO: 1,
+                MATRICULADO: 2
+            },
+            COMPENDIO_GRUPO_TIPO_FALTA: {
+                CONTRA_LA_ETICA_PROFECIONAL: 4381
+            },
+            TIPO_COLEGIADO: {
+                PRE_COLEGIADO: 1,
+                COLEGIADO: 2
+            },
+            INSTITUCION_RECONOCIMIENTO: {
+                ANR: 3327,
+                SUNEDU: 3753
+            },
+            TIPO_ADJUNTO: {
+                VOUCHER: 4348,
+                FOTO: 4302,
+                FIRMA: 4303
+            },
+            MODAL_SICE: {
+                SMALL: 'sm',
+                MEDIUM: 'md',
+                LARGE: 'lg'
+            },
+            TIPOS_BUSQUEDA: {
+                PERSONA: {
+                    POR_CIP: 1,
+                    POR_APELLIDOS_NOMBRES: 2,
+                    POR_NUMERO_DOC: 3,
+                    POR_RAZON_SOCIAL: 4,
+                    POR_DNI_RUC: 5
+                },
+                USUARIO: {
+                    POR_APELLIDOS_NOMBRES: 1,
+                    POR_CODIGO_USUARIO: 2,
+                    POR_CONSEJO_DEPARTAMENTAL: 3
+                },
+                ACTIVA_CUENTA: {
+                    NUMERO_DOCUMENTO: 1,
+                    EMAIL: 2,
+                    FECHA_REGISTRO: 3
+                }
+            },
+            CAPITULOS: {
+                NO_ESPECIFICADO_ID: 4003,
+                NO_ESPECIFICADO_LABEL: 'NO ESPECIFICADO'
+            },
+            MONTH_NAME: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            RECAPTCHA_KEY: '6LdQMhETAAAAAMRkLI6Xg0fiCszJXKcUA7WKJShi',
+            ESTADO_COLEGIADO: {
+                SUSPENDIDO: 4455,
+                HABILITADO: 4452,
+                FALLECIDO: 4454,
+                AMONESTADO: 4789
+            },
+            ESTADO_REGISTRO_COLEGIADO: {
+                SUSPENDIDO: 3752
+            },
+            TIPO_CERTIFICADO_HABILIDAD: {
+                TIPO_A: 4946,
+                TIPO_B: 4947,
+                TIPO_C: 4948
+            },
+            ESTADO_REGISTRO_ACTIVACION_CUENTA: {
+                PENDIENTE: 0,
+                INACTIVO: 2,
+            },
+            TIPO_MONEDA: {
+                SOLES: 4510,
+                DOLARES: 4511,
+            },
+            TIPO_COMPONENTE: {
+                TEXTO: 4944,
+                CANT_ASISTENCIAS: 0,
+                IMAGEN: 0,
+                LINEA: 0,
+                NOTA_FINAL: 0,
+                PARTICIPANTE: 4943,
+                TEMARIO_DEL_EVENTO: 4941,
+                TITULO_DEL_EVENTO: 4942,
+                CODIGO_BARRAS: 2667,
+                CODIGO_QR: 5152,
+            },
+            TIPO_COMPROBANTE_PAGO: {
+                FACTURA: 4663,
+                BOLETA: 4664,
+                RECIBO_POR_HONORARIOS: 3805,
+                NOTA_CREDITO: 4829,
+                NOTA_DEBITO: 4832
+            },
+            COMPENDIO_GRUPO: {
+                CLASE_CASO: {
+                    ACTUALIZAR_DATOS_COLEGIACION: 4904,
+                    ORDEN_COMPRA: 3837,
+                    SOLICITUD_COTIZACION: 3838,
+                },
+                ESTADO_DOCUMENTO: {
+                    CARTA_DECLARATORIA: 3028,
+                    SOLICITUD_COMPRA: 3774,
+                    SOLICITUD_COTIZACION: 3776,
+                    ORDEN_COMPRA: 4639,
+                    EXPEDIENTE_ISS: 3808,
+                    REQUERIMIENTO: 3833,
+                    VALIDACION_EXECEL_ISS: 5345,
+                    CARGA_EXCEL_ISS: 5346
+                },
+                TIPO_RESOLUCION: {
+                    TRIBUNAL_DEPARTAMENTAL: 3762,
+                    TRIBUNAL_NACIONAL: 3763,
+                },
+                TIPO_DOCUMENTO_COMPROBANTE: {
+                    SOLICITUD_COTIZACION: 3806,
+                },
+                DOCUMENTO_COMERCIAL: {
+                    NOTA_CREDITO_DEBITO: 3970,
+                    REGISTRO_DOCUMENTO_COMERCIAL: 3971,
+                    REGISTRO_DE_VENTA: 5347
+                },
+                TIPO_DOCUMENTO: {
+                    GESTION_EXCEL_ISS: 5344
+                },
+                MODALIDAD_PAGO: {
+                    CONTADO: 4586,
+                    CREDITO: 4587
+                }
+            },
+            GENERO_PERSONA: {
+                MASCULINO: 29,
+                FEMENINO: 30
+            },
+            TIPO_SANCION: {
+                SUSPENCION: 4770,
+                EXPULSION: 4771,
+                AMONESTACION: 4375
+            },
+            ESTADIO_EXPEDIENTE: {
+                EN_FISCALIA_DEONTOLOGICA: 4328,
+                EN_TRIBUNAL_DEPARTAMENTAL: 2257,
+                EN_TRIBUNAL_NACIONAL: 2262
+            },
+            ESTADO_EXPEDIENTE: {
+                EN_PROCESO: 2266,
+                ELIMINADO: 2268,
+                CONCLUIDO: 2269
+            },
+            CLASE_SOLICITUD: {
+                RESOLUCION: 4892,
+                ORDEN_PAGO: 5296,
+                SOLICITUD_PEDIDO_A_ALMACEN: 4681
+            },
+            RESUELVE_DECLARA: {
+                FUNDADA: 4773,
+                INFUNDADA: 4774
+            },
+            TIPO_SANCION_TNE: {
+                INTERNA: 5186,
+                EXTERNA: 5187
+            },
+            PERIODO_SANCION_TNE: {
+                DIAS: 4764,
+                MESES: 4765
+            },
+            ESTADO_CUENTA_PAGO: {
+                NO_PAGO: 0,
+                PAGO: 1,
+                NO_PERTENESE_SEDE: 2
+            },
+            CATEGORIA_PARTICIPANTE: {
+                CIP: 4605,
+                CIP_HABILITADO: 4604,
+                CIP_FUERA_LIMA: 4607
+            },
+            BANDEJA_TIPO_RUTAS: {
+                APROBAR: 4343,
+                ASIGNAR_COMISION: 2967
+            },
+            ESTADO_CATA_DECLARATORIA: {
+                ACTIVA: 2986,
+                RESGUARDADA: 3024,
+                ANULADA: 4634,
+                REGISTRADA: 4628,
+                ERROR_VALIDACION: 3785,
+                RECEPCIONADA_VALIDADA: 3793,
+
+            },
+            TIPO_CERTIFICADO_EVENTO: {
+                PARTICICPANTE: 4752,
+                EXPOSITOR: 4751,
+                PANELISTA: 3
+            },
+            TIPO_BENEFICIO_ISS: {
+                MONTO_UNICO: 3058,
+                MONTO_COMPARTIDO: 2959,
+                OPCION_SUCESIVA: 3068,
+            },
+            ESTADO_BTRPERSONA: {
+                INCATIVO: 2230,
+                PENDIENTE: 2271,
+                CONFIRMADA: 2272,
+                ACTIVO: 2276,
+            },
+            VALOR_YES_NO: {
+                YES: 1,
+                NO: 0
+            },
+            TIPO_ASIGNACION_ISS: {
+                FALLECIMIENTO_TITULAR: 3164,
+                INVALIDEZ_PERMANENTE: 3167,
+            },
+            ID_AREA_CN: {
+                SEC_GNERAL: 41
+            },
+            TIPO_BENEFICIO_SOCIAL: {
+                FALLECIMIENTO_CONYUGUE: 3166,
+                FALLECIMIENTO_HIJO_MENOR: 3168,
+            },
+            TIPO_DE_ADJUNTOS: {
+                COPIA_SIMPLE_CARNE_CIP: 3206,
+                ULTIMO_RECIBO_PAGO_TITULAR: 3215,
+                CERT_INVALIDEZ_PERMANENTE: 3224,
+                CONSTANCIA_TRABAJO: 3237,
+            },
+            TIPO_ORIGEN_CARTA_DECLARATORIA: {
+                CARTA_DECLARATORIA: 3862,
+                POR_SUCESION_INTESTADA: 3864,
+            },
+            TIPO_ARTICULO: {
+                ARTICULO: 4651,
+                SERVICIO: 4652,
+                GASTO_FIJO: 4882,
+                GASTO_REPRESENTACION: 4885
+            },
+            FASE_PROCESO_SANCIONADOR: {
+                INVESTIGACION_PRELIMINAR: 4690,
+                PRIMERA_INSTANCIA: 4691,
+                SEGUNDA_INSTANCIA: 3750
+            },
+            CONDITION: {
+                YES: 1,
+                NO: 0,
+            },
+            TIPO_CUENTA_PESUPUESTO: {
+                CUENTA: 3814,
+                SUB_CUENTA: 3815,
+                REGISTRO: 3816
+            },
+            TIPO_ASIGNACION_PRESUPUESTAL: {
+                GENERAL: 3829,
+                CON_CENTRO_COSTO: 3830,
+                OTROS: 3831,
+            },
+            TIPO_CUENTA_BANCARIA: {
+                CUENTA_DE_DETRACCION: 3886,
+            },
+            TIPO_RUBRO: {
+                INGRESO: 4736,
+                EGRESO: 4737
+            },
+            NACIONALIDAD: {
+                PERUANA: 5201
+            },
+            ANNIO: {
+                MIN_COL: 1963
+            },
+            ID_PERSONA_CIP: {
+                CN: 198747,
+            },
+            TIPO_AMONESTACION: {
+                PRIVADO: 4795,
+                PUBLICO: 4804
+            },
+            TIPO_CUENTA_CONTABLE: {
+                DEBE: 5340,
+                HABER: 5341,
+                DETRACCION: 5372,
+                PERCEPCION: 5412,
+            },
+            CUENTA_CONTABLE: {
+                DETRACCION_POR_PAGAR: 351,
+                FACTURAS_POR_PAGAR_SOLES: 309,
+                FACTURAS_POR_PAGAR_DOLARES: 310,
+                BOLETAS_POR_PAGAR_SOLES: 311,
+                BOLETAS_POR_PAGAR_DOLARES: 312,
+                HONORARIOS_POR_PAGAR_SOLES: 320,
+                HONORARIOS_POR_PAGAR_DOLARES: 321
+            },
+            TIPO_EVENTO_RESERVA: {
+                INTERNA_CIP: 5332,
+                EXTERNA: 5333,
+                EVENTUAL: 5334
+            },
+            TIPO_ARTICULO_AGRUPA: {
+                SEGMENTO: 5337,
+                CLASE: 4653,
+                ITEM: 3825,
+                FAMILIA: 3824,
+                PRODUCTO: 3823,
+            },
+            TIPO_CONCEPTO: {
+                UNO: 1,
+                DOS: 2
+            },
+            TIPO_CTA_CONTABLE: {
+                REGISTRO: 5410,
+                SUBCUENTA: 5411,
+            },
+            CONCEPTO_PAGO: {
+                ASIGNACION_OTORGADA_POR_EL_CIP: 40
+            },
+            TIPO_AFECTACION_IGV: {
+                CERO_IGV: 5413,
+                MAS_IGV: 5414,
+                INCLUYE_IGV: 5415
+            },
+            ESTADO_MODULO_ALQUILER: {
+                REGISTRADA: 5425,
+                PRE_RESERVADA: 5426,
+                RESERVADA: 5427,
+                ANULADA: 5428,
+                FACTURADA: 5429,
+                ACEPTADA: 5430,
+            },
+            GRUPO_ESTADO_ALQUILER :{
+                ESTADO_PARA_RESERVA : 5431,
+                ESTADO_PARA_REG_COTIZA : 5432,
+            },
+            TIPO_DE_REGIMEN_PEN : {
+                SPP : 5450,
+                SNP : 5451,
+            }
+
+        }
+
+    })());
+
+}());

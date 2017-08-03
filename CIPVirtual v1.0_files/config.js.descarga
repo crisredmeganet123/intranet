@@ -1,0 +1,122 @@
+(function () {
+    var app = angular.module('sice');
+    app.config(function ($httpProvider) {
+
+        //initialize get if not there
+        if (!$httpProvider.defaults.headers.get) {
+            $httpProvider.defaults.headers.get = {};
+        }
+
+        $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+        $httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+
+        var requestInterceptor = ['$q', '$rootScope', '$injector', 'utilFactory',
+            function ($q, $rootScope, $injector, utilFactory) {
+                var interceptorInstance = {
+                    response: function (response) {
+                        utilFactory.ajaxStop();
+                        return response;
+                    },
+                    responseError: function (rejection) {
+                        console.log(rejection);
+                        utilFactory.ajaxStop();
+                        utilFactory.ajaxStop2();
+                        var utilService = $injector.get('utilService');
+                        var error = rejection.data === null ? null : rejection.data.error;
+                        var errorCode = rejection.data === null ? 0 : rejection.data.code;
+                        if (rejection.status == 403) {
+                            utilFactory.ajaxStop2();
+                            var modalInstance = utilService.informationModal('La session ha caducado.');
+                            modalInstance.result.then(function () {
+                                console.log("La session ha caducado...");
+                                window.location = utilFactory.getBasePath() + 'logout';
+                                //window.location.reload();
+                            }, function () {
+                                console.log("La session ha caducado...");
+                                window.location = utilFactory.getBasePath() + 'logout';
+                                //window.location.reload();
+                            });
+                        } else if (rejection.status == 500) {
+                            if (typeof error !== null && typeof error === 'object') {
+                                utilService.errorModal(JSON.stringify(rejection.data.exceptionMessage));
+                            } else {
+                                utilService.errorModal(rejection.data.exceptionMessage);
+                            }
+                        }else if (rejection.status == 401) {
+                            var modalInstance = utilService.informationModal('Ud. no tiene acceso a esta opci\u00F3n.');
+                            modalInstance.result.then(function () {
+                                window.location = utilFactory.getBasePath() + 'logout';
+                            }, function () {
+                                window.location = utilFactory.getBasePath() + 'logout';
+                            });
+                        }else {
+                            var modalInstance = utilService.informationModal(rejection.statusText);
+                        }
+                        return $q.reject(rejection);
+                    }
+                };
+                return interceptorInstance;
+            }];
+        $httpProvider.interceptors.push(requestInterceptor);
+    });
+
+    app.config(function ($provide) {
+        $provide.decorator('GridOptions', ['$delegate', 'commonFactory', 'i18nService', function ($delegate, commonFactory, i18nService) {
+            var gridOptions;
+            gridOptions = angular.copy($delegate);
+            gridOptions.initialize = function (options) {
+                var initOptions;
+                initOptions = $delegate.initialize(options);
+                //initOptions.enableColumnMenus = false;
+                initOptions.rowTemplate = commonFactory.gridRowTemplate();
+                if(!initOptions.paginationPageSizes){
+                    initOptions.paginationPageSizes = [10, 30, 50];
+                    initOptions.paginationPageSize = 10;
+                }
+                initOptions.useExternalPagination = true;
+                return initOptions;
+            };
+            i18nService.setCurrentLang('es');
+            return gridOptions;
+        }]);
+    });
+
+    app.config(function (paginationConfig) {
+        paginationConfig.firstText = 'Primero';
+        paginationConfig.previousText = 'Anterior';
+        paginationConfig.nextText = 'Siguiente';
+        paginationConfig.lastText = '\u00DAltimo';
+    });
+
+    app.factory('appConfig', ['constants', function (constants) {
+        return {
+            DEFAULT_ALERT_TYPE_EMPTY_QUERY: constants.APP_CONFIG.ALERT_TYPE.INFO,
+            DEFAULT_ALERT_TYPE_SUCCESS_TRANSACTION: constants.APP_CONFIG.ALERT_TYPE.INFO,
+            DEFAULT_ALERT_TYPE_INFO_TRANSACTION: constants.APP_CONFIG.ALERT_TYPE.INFO,
+            DEFAULT_UPLOAD_FILE_SIZE: constants.FILE_SIZES.FIVE_MB,
+            DEFAULT_MAX_RANGE_DATE: 30,
+            PAGINATION_CONFIG: {
+                PAGINATION_OPTIONS: {
+                    pageNumber: 1,
+                    pageSize: 10,
+                    sort: null
+                }
+            },
+            GRID_CONFIG: {
+                ROW_HEIGHT: 30,
+                HEADER_HEIGHT: 30,
+                PLUS: {
+                    WITH_PAGINATION: 55,
+                    WITHOUT_PAGINATION: 19
+                }
+            }
+        }
+    }]);
+
+    //app.config(['$uibModalProvider', function($uibModalProvider) {
+    //    $uibModalProvider.options = {
+    //        backdrop: true,
+    //        keyboard: true
+    //    }
+    //}])
+}());

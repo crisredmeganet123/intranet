@@ -1,0 +1,539 @@
+(function () {
+    var app = angular.module('sice');
+    app.factory('utilFactory', ['$rootScope', '$timeout', 'constants', function ($rootScope, $timeout, constants) {
+        var factory = {};
+        factory.showAlert = function (message, type) {
+            type = typeof type !== 'undefined' ? type : 'warning';
+
+            var $data = $('<div class="cip-alert cip-alert-' + type + '">' + message + '</div>');
+            $data.appendTo($('html'));
+            setTimeout(function () {
+                $data.remove();
+            }, 10000);
+        };
+
+        factory.removeAlert = function(){
+            $('.cip-alert').remove();
+        }
+
+        factory.ajaxLoader = function () {
+            $('body').append('<div class="bgTransparent"><div class="ajax-loader">Cargando...</br><img src="/e/images/loading-bars.gif"></div></div>');
+        }
+
+        factory.ajaxStop = function () {
+            $('.bgTransparent').remove();
+        }
+        factory.ajaxLoader2 = function () {
+            $('body').append('<div class="bgTransparent2"><div class="ajax-loader">Cargando...</br><img src="/e/images/loading-bars.gif"></div></div>');
+        }
+
+        factory.ajaxStop2 = function () {
+            $('.bgTransparent2').remove();
+        }
+
+        factory.ajaxInlineLoader = function (lementId) {
+            $('#' + lementId).html('<img src="/e/images/autocomplete-loader.gif"/>');
+        }
+
+        factory.ajaxInlineStop = function (lementId) {
+            $('#' + lementId).html('');
+        }
+
+        factory.focus = function (ngModel) {
+            $timeout(function () {
+                if ($('[ng-model="' + ngModel + '"]').length) {
+                    $('[ng-model="' + ngModel + '"]:first').focus();
+                } else {
+                    $('[id="' + ngModel + '"]').focus();
+                }
+            }, 10);
+        }
+
+        factory.getDeleteCellTemplate = function () {
+            return {
+                displayName: 'Quitar',
+                cellTemplate: '<div style="padding-top: 2px"><span class="glyphicon glyphicon-trash" aria-hidden="true" ng-click="$parent.delete(row.entity)" title="Quitar"></span></div>',
+                width: 80,
+                cellClass: 'ta-center'
+            };
+        }
+
+        factory.getCurDate = function () {
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+            var yyyy = today.getFullYear();
+
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+
+            return dd + '/' + mm + '/' + yyyy;
+        }
+
+        factory.getFileExtension = function(file){
+            return  file.split('.').pop();
+        }
+
+        factory.subtractDate = function (fecIni, fecFin) {
+            //var aFecha1 = f1.split('/');
+            //var aFecha2 = f2.split('/');
+            //var fFecha1 = Date.UTC(aFecha1[0],aFecha1[1]-1,aFecha1[2]);
+            //var fFecha2 = Date.UTC(aFecha2[0],aFecha2[1]-1,aFecha2[2]);
+            //var dif = fFecha2 - fFecha1;
+            //var day = Math.floor(dif / (1000 * 60 * 60 * 24));
+            //return day;
+            var one_day = 1000 * 60 * 60 * 24;
+            var arrayFechaIni = fecIni.split('/');
+            var arrayFechaFin = fecFin.split('/');
+
+            var diaI = arrayFechaIni[0]
+            var mesI = (arrayFechaIni[1])
+            var anoI = (arrayFechaIni[2])
+
+            var diaF = arrayFechaFin[0]
+            var mesF = (arrayFechaFin[1])
+            var anoF = (arrayFechaFin[2]) //le restamos un año
+
+            var fechaDateIni = new Date(anoI, mesI, diaI)
+            var fechaDateFin = new Date(anoF, mesF, diaF)
+
+            var Diff = Math.ceil((fechaDateIni.getTime() - fechaDateFin.getTime()) / (one_day));
+            return Diff;
+        }
+
+        factory.dateIsGreaterThan = function (maxDate, minDate) {
+            var maxDate = $.datepicker.parseDate("dd/mm/yy", maxDate);
+            var minDate = $.datepicker.parseDate("dd/mm/yy", minDate);
+
+            return maxDate > minDate;
+        }
+
+        factory.formatDateDMY = function (today) {
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+            var yyyy = today.getFullYear();
+
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+
+            return dd + '/' + mm + '/' + yyyy;
+        }
+
+        factory.restartDayToDate = function (date, numDay) {
+            var date = $.datepicker.parseDate("dd/mm/yy", typeof date === 'undefined' ? this.getCurDate() : date);
+            date.setDate(date.getDate() - parseInt(numDay));
+            return this.formatDateDMY(date);
+        }
+
+        factory.restartYearToDate = function (numYear, date) {
+            var date = $.datepicker.parseDate("dd/mm/yy", typeof date === 'undefined' ? this.getCurDate() : date);
+            date.setFullYear(date.getFullYear() - parseInt(numYear));
+            return this.formatDateDMY(date);
+        }
+
+        factory.getYearToDate = function (date) {
+            var date = $.datepicker.parseDate("dd/mm/yy", date);
+            return date.getFullYear();
+        }
+
+        factory.convertDateToString = function (date) {
+            var formatDate = '';
+            if (!this.isNullOrEmpty(date)) {
+                var date = $.datepicker.parseDate("dd/mm/yy", date);
+                formatDate = date.getDate() + ' de ' + constants.MONTH_NAME[date.getMonth()] + ' de ' + date.getFullYear();
+            }
+            return formatDate;
+        }
+
+
+        factory.formatRequiredField = function (fieldName, msg) {
+            msg = msg || 'es un campo requerido.'
+            return "'<strong>" + fieldName + "</strong>' " + msg;
+        }
+
+        factory.plusDayToDate = function (date, numDay) {
+            var date = $.datepicker.parseDate("dd/mm/yy", date);
+            date.setDate(date.getDate() + numDay);
+            return this.formatDateDMY(date);
+        }
+
+        factory.plusYearToDate = function (date, numYear) {
+            var date = $.datepicker.parseDate("dd/mm/yy", date);
+            date.setYear(date.getFullYear() + numYear);
+            return this.formatDateDMY(date);
+        }
+
+        factory.plusMonthToDate = function (date, numMonth) {
+            var date = $.datepicker.parseDate("dd/mm/yy", date);
+            date.setMonth(date.getMonth() + numMonth);
+            return this.formatDateDMY(date);
+        }
+
+        factory.test = function () {
+            return 'cris';
+        }
+
+        factory.getBasePath = function () {
+            var basePatch = '/' + window.location.pathname.split('/')[1] + '/';
+            return basePatch;
+        }
+
+        factory.calculateGridHeight = function (dataLength, pagination) {
+            pagination = typeof pagination !== 'undefined' ? pagination : true;
+            var plus = pagination ? 55 : 19;
+
+            var rowHeight = 30;
+            var headerHeight = 30;
+            return {
+                height: ((dataLength * rowHeight + headerHeight) + plus) + "px"
+            };
+        }
+
+        factory.convertByteToMb = function (size) {
+            return (size / 1024) /1024;
+        }
+
+        factory.convertDataToNumber = function (data) {
+            return this.isNullOrEmpty(data) ? 0 : parseFloat(data);
+        }
+
+        factory.validate = function (object) {
+            object.StopOnFirstFailure = object.hasOwnProperty('StopOnFirstFailure') ? object.StopOnFirstFailure : true;
+
+            var regExpEmail = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+            var regExpIpAddress = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            var msg = '';
+            var valRes = {};
+            for (var model in object.rules) {
+                var item = object.rules[model];
+                var value = item.hasOwnProperty('value') ? object.rules[model].value : $('[ng-model="' + model + '"]').val();
+
+                //Required validation
+                if (item.hasOwnProperty('required') && object.rules[model].required && this.isNullOrEmpty(value)) {
+                    var withMessage = item.hasOwnProperty('withMessage') ? object.rules[model].withMessage + '<br>' : "<strong>'" + object.rules[model].withName + "'</strong>" + ' es un campo requerido.<br>';
+                    msg += withMessage;
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Exact lengt validation
+                if (item.hasOwnProperty('length') && (value.length != object.rules[model].length && value != '')) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener una longitud de ' + object.rules[model].length + ' carácteres.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //MinLengh validation
+                if (item.hasOwnProperty('minLength') && object.rules[model].required && value.trim().length < object.rules[model].minLength) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener una longitud mínima de ' + object.rules[model].minLength + ' carácteres.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //MaxLength validation
+                if (item.hasOwnProperty('maxLength') && object.rules[model].required && value.length > object.rules[model].maxLength) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener una longitud máxima de ' + object.rules[model].maxLength + ' carácteres.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Min validation
+                if (item.hasOwnProperty('min') && object.rules[model].required  && parseFloat(value) < object.rules[model].min) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener un valor minimo de ' + object.rules[model].min + '.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Max validation
+                if (item.hasOwnProperty('max') && object.rules[model].required && parseFloat(value) > object.rules[model].max) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' debe tener un valor maximo de ' + object.rules[model].max + '.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Email validation
+                if (item.hasOwnProperty('email') && !this.isNullOrEmpty(value) && item.email && !regExpEmail.test(value)) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' no tiene el formato correcto' + '.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //No Email validation
+                if (item.hasOwnProperty('noEmail') && !this.isNullOrEmpty(value) && regExpEmail.test(value)) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' no puede ser un correo electrónico' + '.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Ruc validation
+                if(item.hasOwnProperty('isRuc') && object.rules[model].isRuc && value != '' && value != null && !validarRUC(value)){
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + '  no tiene el formato correcto<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Ip address validation
+                if (item.hasOwnProperty('ipAddress') && value != '' && !regExpIpAddress.test(value)) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' no tiene el formato correcto' + '.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Greater than
+                if (item.hasOwnProperty('greaterThan') && value != '' && value <= object.rules[model].greaterThan) {
+                    msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' no tiene que ser menor o igual a' + object.rules[model].greaterThan + '.<br>';
+                    if (object.StopOnFirstFailure) {
+                        continue;
+                    }
+                }
+
+                //Validate number format ##.#
+                if (item.hasOwnProperty('numberFormat') && value != '') {
+                    if (object.rules[model].numberFormat.length > 0) {
+                        var format = object.rules[model].numberFormat;
+                        var valorMaximo = format.replace(/#/g,'9');
+                        var regex = '';
+                        if (format.indexOf('#') !== -1) {
+                            if (format.indexOf('.') !== -1 &&  value.indexOf('.') !== -1) {
+                                var array = format.split('.');
+                                var maxInt = array[0].length;
+                                var maxDecimal = array[1].length;
+                                regex = new RegExp('\^(\\d{0,' + maxInt + '})(\\.\\d{' + maxDecimal + '})$');
+                            } else {
+                                var maxInt = format.split('.')[0].length;
+                                regex = new RegExp('\^(\\d{0,' + maxInt + '})$');
+                            }
+                        }
+                        if (!value.match(regex)) {
+                            msg += "<strong>'" + object.rules[model].withName + "'</strong>" + ' tiene que ser menor o igual a <strong>' + valorMaximo + '</strong><br>';
+                            if (object.StopOnFirstFailure) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+			}
+			valRes.isValid = msg.length <= 0;
+			valRes.errors = msg;
+			return valRes;
+		}
+
+		factory.isValidRuc = function(ruc){
+			return validarRUC(ruc);
+		}
+
+		factory.isValidEmail = function(email){
+			var regExpEmail = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+			return regExpEmail.test(email);
+		}
+
+        factory.validateFileExtension = function(file, fileTypeAccept){
+            var fileExt = '.' +  file.name.split('.').pop().toLowerCase();
+            var exito = false;
+            _.forEach(fileTypeAccept, function(ext){
+                if(ext == fileExt){
+                    exito = true;
+                }
+            });
+
+            return exito;
+        }
+
+            factory.validateFileSize = function(file, size){
+            return file.size > size ? false : true;
+        }
+
+        function validarRUC(valor)
+        {
+			if(typeof valor === 'undefined' || valor == null || valor.length != 11){
+				return false;
+			}
+
+			if ( valor.length == 8 ){
+				suma = 0
+				for (i=0; i<valor.length-1;i++){
+					digito = valor.charAt(i) - '0';
+					if ( i==0 ) suma += (digito*2)
+					else suma += (digito*(valor.length-i))
+				}
+				resto = suma % 11;
+				if ( resto == 1) resto = 11;
+				if ( resto + ( valor.charAt( valor.length-1 ) - '0' ) == 11 ){
+					return true
+				}
+			} else if ( valor.length == 11 ){
+				suma = 0
+				x = 6
+				for (i=0; i<valor.length-1;i++){
+					if ( i == 4 ) x = 8
+					digito = valor.charAt(i) - '0';
+					x--
+					if ( i==0 ) suma += (digito*x)
+					else suma += (digito*x)
+				}
+				resto = suma % 11;
+				resto = 11 - resto
+
+				if ( resto >= 10) resto = resto - 10;
+				if ( resto == valor.charAt( valor.length-1 ) - '0' ){
+					return true
+				}
+			}
+			return false
+        }
+
+		factory.getKeyCode = function(e){
+			return e.keyCode ? e.keyCode : e.which;
+		}
+
+		factory.isNullOrEmpty = function(value){
+			return (typeof value === 'undefined' || value == '' || value == null) ? true : false;
+		}
+
+		factory.isValidNumDoc = function(vNumDoc, nIdeTipoDoc){
+			var valid = true;
+			if(nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.DNI || nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.RUC || nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.CIP){
+				if(vNumDoc.replace(/[^0-9]/g, '') != vNumDoc){
+					valid = false;
+				}else{
+					if(nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.DNI && vNumDoc.length != 8){
+						valid = false;
+					}
+
+					if(nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.RUC && vNumDoc.length != 11){
+						valid = false;
+					}
+				}
+			}
+			return valid;
+		}
+
+		factory.regExpDigit = function(){
+			return '[^0-9]';
+		}
+
+		factory.regExpAlfnum = function(){
+			return '[^0-9A-Za-zñÑáéíóúÁÉÍÓÚ .,:/@_&\"()*+-]';
+		}
+
+		factory.regExpNumDoc = function(nIdeTipoDoc){
+			if(nIdeTipoDoc === constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.DNI || nIdeTipoDoc === constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.RUC || nIdeTipoDoc === constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.NUMERO_REGISTRO_CIP){
+				return this.regExpDigit();
+			}else{
+				return this.regExpAlfnum();
+			}
+		}
+
+        factory.maxLengthNumDoc = function(nIdeTipoDoc){
+            var maxLength = 20;
+            if(nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.DNI){
+                maxLength = 8;
+            }else if(nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.RUC){
+                maxLength = 11;
+            }else if(nIdeTipoDoc == constants.COMPENDIO_DETALLE_TIPO_DOCUMENTO.NUMERO_REGISTRO_CIP){
+                maxLength = 6;
+            }
+            return maxLength;
+        }
+
+        factory.getKeyCode = function (e) {
+            return e.keyCode ? e.keyCode : e.which;
+        }
+
+        factory.isNullOrEmpty = function (value) {
+            return value == '' || value == null ? true : false;
+        }
+
+
+        factory.regExpDigit = function () {
+            return '[^0-9]';
+        }
+
+        factory.regExpAlfnum = function () {
+            return '[^0-9A-Za-zñÑáéíóúÁÉÍÓÚ .,:/@_&\"()*+-]';
+        }
+
+        factory.padLeft = function(string, size, padChar){
+            var pad = Array(size).join(padChar);
+            pad += string;
+            return pad.substr(pad.length - size);
+        }
+
+        /**Calcula el igv del monto total*/
+        factory.calcularIgv = function(monto, igv){
+            var valorIgv = parseFloat(igv) + 1;
+            var subTotal = monto / valorIgv;
+            return parseFloat(monto - subTotal);
+        }
+
+        /**Calcula el igv del Valor de Venta*/
+        factory.calcularIgvValorVenta = function(valorVenta, igv){
+            return parseFloat(valorVenta * igv);
+        }
+
+        factory.calcularSubTotal = function(monto, igv){
+            var valorIgv = parseFloat(igv) + 1;
+            return monto / valorIgv;
+        }
+
+        factory.getIgvConUno = function(igv){
+            return (igv / 100) + 1;
+        }
+        factory.getIgvConCero = function (igv) {
+            return igv / 100;
+        }
+
+        factory.validateFullName = function(vApePaterno, vApeMaterno, vNombres){
+            var msg = '';
+            var v1 = vApePaterno;
+            var v2 = vApeMaterno;
+            var v3 = vNombres;
+            if(this.isNullOrEmpty(v1) && this.isNullOrEmpty(v2) && this.isNullOrEmpty(v3)){
+                msg = 'Debe ingresar como mínimo dos campos de los apellidos y Nombres';
+            }else{
+                if(this.isNullOrEmpty(v1) && this.isNullOrEmpty(v2)){
+                    msg = 'Debe ingresar el Primer Apellido o Segundo Apellido';
+                }
+
+                if(this.isNullOrEmpty(v1) && this.isNullOrEmpty(v3)){
+                    msg = 'Debe ingresar el Primer Apellido o Nombres';
+                }
+
+                if(this.isNullOrEmpty(v2) && this.isNullOrEmpty(v3)){
+                    msg = 'Debe ingresar el Segundo Apellido o Nombres';
+                }
+            }
+
+            return msg;
+        }
+        
+        factory.getBlobUrl = function(data){
+            var file = new Blob([data], {type: 'application/pdf'});
+            return URL.createObjectURL(file);
+        }
+
+        factory.trim = function(string){
+            return string.replace(/^\s+|\s+$/gm,'');
+        }
+
+        return factory;
+    }]);
+}());

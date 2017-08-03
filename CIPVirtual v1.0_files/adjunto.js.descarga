@@ -1,0 +1,51 @@
+var FileBueno = new Array(".gif", ".jpg", ".doc", ".docx", ".pdf", ".xls", ".xlsx");
+
+
+function addFilePreColegiadoInp_old(nIdePersona) {
+    var pUrl = getUrlPortal() + pUrlFile + "AddFilePersonaInp?nIdePersona=" + nIdePersona;
+    window.open(pUrl, "uploadFile", "toolbar=no,location=no,directories=no,status=yes,menubar=no,scrollbars=yes,resizable=yes,minimize=no,height=190,width=740,top=220,left=280");
+}
+
+function addFilePreColegiadoInp(objCampo,urlCatalogo) {
+    var x = (screen.width) / 4;
+    var y = (screen.height) / 6;
+    var pUrl = urlCatalogo;
+    popupImp = window.open(pUrl, 'pop_persona', "top=" + y + ",left=" + x + ",height=270,width=600,status=yes,toolbar=no,location=no,menubar=no,scrollbars=no,resizable=no");
+    popupImp.focus();
+}
+
+function addFileFinalV1(objFrm, rutaArchivo) {
+    //var valorFile = $.trim($("#idAdjunto").val());
+	//alert(rutaArchivo);
+    if (rutaArchivo.length <= 0) {
+        alert('Por Favor, no ha seleccionado el archivo a adjuntar..');
+        return;
+    } else {
+        var bueno = true;
+        bueno = compruebaExtension(rutaArchivo);
+        if (bueno) {
+            if (confirm('Por Favor, verifique los datos de ingreso. Desea registrar la Transaccion ?')) {
+                $('#divArchivo').show();
+                objFrm.submit();
+            } else {
+                return;
+            }
+        }
+    }
+}
+
+function compruebaExtension(rutaArchivo) {
+    var bueno = false;
+    var extension = (rutaArchivo.substring(rutaArchivo.lastIndexOf("."))).toLowerCase();
+    for (var i = 0; i < FileBueno.length; i++) {
+        if (FileBueno[i] == extension) {
+            bueno = true;
+            break;
+        }
+    }
+    if (!bueno) {
+        alert('Por Favor, verifique la extension de los archivos a subir \n , las extensiones permitidas son: ' + FileBueno.join());
+    }
+    return bueno;
+}
+

@@ -1,0 +1,44 @@
+(function(){
+    var app = angular.module('sice');
+
+    app.factory('consultaColegiadoFactory', ['$http', 'constants', 'commonFactory', 'uiGridConstants', function($http, constants, commonFactory, uiGridConstants){
+        var factory = {};
+        factory.listaTiposBusqueda = function(){
+            return [
+                {id: 1, nombre: 'Número de Documento'},
+                {id: 2, nombre: 'Apellidos y Nombres'}
+            ]
+        };
+        factory.listaTipoCol = function(){
+            return[
+                {id:11, nombre:'ORDINARIO'},
+                {id:13, nombre:'TEMPORAL'}
+            ]
+        };
+        factory.getColBusqueda = function () {
+            var temNumCip = '<div class="ui-grid-cell-contents"><a href="#" ng-click="grid.appScope.verDetalle(row.entity.nIdePadronCol)"  tooltip-append-to-body="true" tooltip="Ver Detalle" tooltip-placement="bottom">{{row.entity.vRegCip}}</a></div>';
+            var detailTemplate = '<div class="ui-grid-cell-contents"><a href="#" ng-click="grid.appScope.verDetalle(row.entity.nIdePadronCol)"  tooltip-append-to-body="true" tooltip="Ver Detalle" tooltip-placement="bottom"><span class="glyphicon glyphicon-search dark-red"></span></a></div>';
+            var column = [
+                {
+                    name: 'numeration',
+                    displayName: '#',
+                    width: 30,
+                    enableSorting: false,
+                    enableColumnMenu:false,
+                    cellClass: 'ta-center',
+                    headerCellClass: 'ta-right',
+                    cellTemplate: commonFactory.numerationCellTemplate()
+                },
+                {name: 'nIdePadronCol', displayName: 'Ver Detalle', width: 100, cellTemplate: detailTemplate, enableSorting: false, enableColumnMenu:false,  cellClass: 'ta-center'},
+                {name: 'vRegCip', displayName: 'CIP', width: 60, cellTemplate:temNumCip},
+                {name: 'vRazonSocial', displayName: 'Apellidos y Nombres', minWidth: 150},
+                {name: 'vEspecialidad', displayName: 'Especialidad', minWidth: 150},
+                {name: 'vSede', displayName: 'Sede', width: 130},
+                {name: 'vEstado', displayName: 'Estado del Registro', width: 220},
+
+            ];
+            return column;
+        }
+        return factory;
+    }]);
+}());

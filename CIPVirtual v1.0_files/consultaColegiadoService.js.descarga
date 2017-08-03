@@ -1,0 +1,19 @@
+(function () {
+
+    var app = angular.module('sice');
+
+    app.factory('consultaColegiadoService', ['$http', 'constants', 'utilFactory', function ($http, constants, utilFactory) {
+        var service = {};
+
+        service.consultar = function (data) {
+            return $http.post('ajax/consultar', data);
+        }
+
+        service.detalle = function(nIdePadronCol){
+            return $http.get('detalle/'+nIdePadronCol);
+        }
+
+        return service;
+    }]);
+
+}());

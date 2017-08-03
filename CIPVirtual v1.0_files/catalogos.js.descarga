@@ -1,0 +1,43 @@
+var selectObjUbigeo = "<select class=\"form-control\"><option value=\" \">-- Seleccione --</option></select>";
+
+
+function regNuevaEmpresa(objCampo,urlCatalogo) {
+    var x = (screen.width) / 4;
+    var y = (screen.height) / 6;
+    var pUrl = urlCatalogo;
+    popupImp = window.open(pUrl, 'pop_persona', "top=" + y + ",left=" + x + ",height=500,width=700,status=yes,toolbar=no,location=no,menubar=no,scrollbars=no,resizable=no");
+    popupImp.focus();
+}
+
+//verSunat
+
+function consultaSunat(objCampo) {
+    var x = (screen.width) / 4;
+    var y = (screen.height - 300) / 2;
+    var pUrl = "http://www.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias";
+    popupImp = window.open(pUrl, 'pop_sunat', "top=" + y + ",left=" + x + ",height=600,width=800,status=yes,toolbar=no,location=no,menubar=no,scrollbars=no,resizable=no");
+    popupImp.focus();
+}
+
+//openDialogoGen(nombDivDialogo, pUrl, param);
+
+function consultaSunat_old(nombDivDialogo) {
+	alert('aaa');
+	var param = { wordSearch: 1 };
+	var pUrl = "http://www.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias";
+	openDialogoGen(nombDivDialogo, pUrl, param);
+}
+
+///ajax/misDatos/changeDpto
+function onChangeUbigeo(objCampo, sw, objDivLoad) {
+	var n_IdeItem  =   $.trim($(objCampo).val());
+    var pUrl = "../ajax/misDatos/changeDpto"; 
+    var param = { n_IdeItem: n_IdeItem, sw:sw };
+    $("#divDistrito").html(selectObjUbigeo);
+	if(sw=='1'){
+		$("#divProv").html(selectObjUbigeo);
+	}
+    if (n_IdeItem.length > 0) {    	    	
+    	 openLoadAjax(objDivLoad, pUrl, param);
+    }   
+}
