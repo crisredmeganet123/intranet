@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!-- saved from url=(0068)http://cipvirtual.cip.org.pe/sicecolegiacionweb/externo/consultaCol/ -->
+<html lang="es" ng-app="sice" class="ng-scope"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}</style>
+    <title>CIPVirtual v1.0</title>
+    
+    <link rel="stylesheet" href="./CIPVirtual v1.0_files/jquery-ui.css">
+<link rel="stylesheet" href="./CIPVirtual v1.0_files/bootstrap.css">
+<link rel="stylesheet" href="./CIPVirtual v1.0_files/portal.css">
+<link rel="stylesheet" href="./CIPVirtual v1.0_files/app.css">
+<link rel="stylesheet" href="./CIPVirtual v1.0_files/ui-grid.min.css">
+<link rel="stylesheet" href="./CIPVirtual v1.0_files/angular.treeview.css">
+<link rel="stylesheet" href="./CIPVirtual v1.0_files/bootstrap-select.min.css">
+<link rel="icon" type="image/png" href="http://cipvirtual.cip.org.pe/e/images/logo-sice-login.png">
+
+<script src="./CIPVirtual v1.0_files/jquery.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/jquery-ui.min.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/bootstrap.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/bootstrap-select.min.js.descarga"></script>
+<link rel="stylesheet" href="./CIPVirtual v1.0_files/angular-bootstrap-calendar.min.css">
+
+<script src="./CIPVirtual v1.0_files/calendarioJQ.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/funciones.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/ajax.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/catalogos.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/adjunto.js.descarga"></script>
+
+<script src="./CIPVirtual v1.0_files/general.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/validator.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/angular.min.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/angular-route.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/ui-grid.min.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/ui-bootstrap-tpls-0.13.4.min.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/ocLazyLoad.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/lodash.min.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/angular-filter.min.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/angular.treeview.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/app.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/config.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/utilFactory.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/utilDirective.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/commonController.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/utilService.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/utilFilter.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/constants.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/commonService.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/commonFactory.js.descarga" charset="utf-8"></script>
+<link href="./CIPVirtual v1.0_files/nya-bs-select.min.css" rel="stylesheet">
+<script src="./CIPVirtual v1.0_files/nya-bs-select.min.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/angular-bootstrap-calendar-tpls.min.js.descarga" charset="utf-8"></script>
+</head>
+<body style="">
+<div class="container-fluid">
+    <div class="row" id="main-content" style="visibility: visible;">
+        <div class="col-xs-12">
+            
+
+
+
+<div ng-controller="consultaColegiadoController" class="margin-top-10 ng-scope">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-2" style="line-height: 80px;">
+                            <img src="./CIPVirtual v1.0_files/logo-sice.png">
+                        </div>
+                        <div class="col-sm-8 ta-center" style="line-height: 40px">
+                            <h2>Búsqueda de colegiados</h2>
+                        </div>
+                        <div class="col-sm-2 ta-right">
+                            <img src="./CIPVirtual v1.0_files/logocip.jpg" height="80">
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <form action="http://cipvirtual.cip.org.pe/" class="ng-pristine ng-valid ng-valid-maxlength">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <label for="nIdeTipoBusqueda" class="form-label" required="">Buscar Por</label><span class="required">(*)</span>
+                                <select id="nIdeTipoBusqueda" ng-model="filter.nIdeTipoBusqueda" ng-options="tb.id as tb.nombre for tb in listaTiposBusqueda" class="form-control ng-pristine ng-untouched ng-valid" ng-change="onChangeTipoBusqueda()"><option value="0" selected="selected" label="Número de Documento">Número de Documento</option><option value="1" label="Apellidos y Nombres">Apellidos y Nombres</option></select>
+                            </div>
+
+                            
+                            <div class="col-sm-2">
+                                <label class="form-label" required="">Tipo de Colegiado</label><span class="required">(*)</span>
+                                <select ng-model="filter.nIdeTipoColegiado" ng-options="tc.id as tc.nombre for tc in tiposColegiado" class="form-control ng-pristine ng-untouched ng-valid"><option value="" class="">--Seleccione--</option><option value="0" label="ORDINARIO O VITALICIO">ORDINARIO O VITALICIO</option><option value="1" label="TEMPORAL">TEMPORAL</option></select>
+                            </div>
+
+                            
+                            <div ng-show="filter.nIdeTipoBusqueda == 1">
+                                <div class="col-sm-2">
+                                    <label class="form-label" required="">Tipo de Documento</label><span class="required">(*)</span>
+                                    <select class="form-control ng-pristine ng-untouched ng-valid" ng-model="filter.nIdeTipoDoc" ng-options="td.id as td.nombre for td in tiposDocumento" ng-change="ngChangeTipoDocumento()"><option value="0" selected="selected" label="RUC">RUC</option><option value="1" label="DNI">DNI</option><option value="2" selected="selected" label="Reg. CIP">Reg. CIP</option><option value="3" label="C.E">C.E</option></select>
+                                </div>
+                                <div class="col-sm-2">
+
+                                    <label for="vNumDoc" required="">№ de Documento</label><span class="required">(*)</span>
+                                    <input id="vNumDoc" type="text" class="form-control dblclick-clear uppercase ng-pristine ng-valid ng-isolate-scope ng-valid-maxlength ng-touched" ng-model="filter.vNumDoc" custom-valid="vNumDocPattern" maxlength="20" autofocus="">
+                                </div>
+                            </div>
+
+                            
+                            <div ng-show="filter.nIdeTipoBusqueda == 2" class="ng-hide">
+                                <div class="col-sm-2">
+                                    <label>Primer Apellido</label>
+                                    <input type="text" ng-model="filter.vPrimerApellido" class="form-control dblclick-clear uppercase ng-pristine ng-untouched ng-valid">
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>Segundo Apellido</label>
+                                    <input type="text" ng-model="filter.vSegundoApellido" class="form-control dblclick-clear uppercase ng-pristine ng-untouched ng-valid">
+                                </div>
+                                <div class="col-sm-1">
+                                    <label>Nombres</label>
+                                    <input type="text" ng-model="filter.vNombres" class="form-control dblclick-clear uppercase ng-pristine ng-untouched ng-valid">
+                                </div>
+                            </div>
+
+                            
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <div class="input-group">
+                                        <img ng-src="/sicecolegiacionweb/externo/consultaCol/captcha.jpg" class="captcha-img" id="imgCaptcha" src="./CIPVirtual v1.0_files/captcha.jpg">
+                                        <label for="imgCaptcha" class="input-group-addon btn" ng-click="reloadCaptcha($event)"><span class="glyphicon glyphicon-repeat"></span></label>
+                                    </div>
+                                    <input type="text" ng-model="filter.captcha" class="form-control digit ng-pristine ng-untouched ng-valid ng-valid-maxlength" maxlength="5" placeholder="Resultado de la Operación Aquí" tooltip="Ingrese aquí el resultado de la suma o resta que aparece en la imagen" tooltip-trigger="focus" tooltip-append-to-body="true" tooltip-placement="right" tooltip-class="captcha" autocomplete="off" ng-focus="addClass()">
+                                </div>
+                            </div>
+
+
+                            
+                            
+                            
+                            
+                            
+                            <div class="col-sm-1">
+                                <div class="empty-row"></div>
+                                <input type="submit" id="btnBuscar" value="Consultar" class="btn btn-primary" ng-click="consultar($event)">
+                            </div>
+                        </div>
+                    </form>
+
+                    
+                    <hr>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <util-alert type="info" ng-show="(gridColegiados.data == null || gridColegiados.data.length == 0) &amp;&amp; isSearched" class="ng-hide">                <div class="alert alert-default">                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> <span ng-transclude=""><span class="ng-scope">
+                                No se
+                                encontraron registros
+                            </span></span>                </div></util-alert>
+                            <!-- ngIf: gridColegiados.data.length -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./CIPVirtual v1.0_files/consultaColegiadoController.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/consultaColegiadoService.js.descarga"></script>
+<script src="./CIPVirtual v1.0_files/consultaColegiadoFactory.js.descarga"></script>
+
+
+        </div>
+    </div>
+</div>
+
+
+</body></html>
